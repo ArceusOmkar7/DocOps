@@ -1,0 +1,54 @@
+"""Application configuration loaded from environment / .env."""
+
+from __future__ import annotations
+
+from functools import lru_cache
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+BASE_DIR = Path(__file__).resolve().parents[2]
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
+
+    app_name: str = "AI Docs Orchestration"
+    app_version: str = "0.1.0"
+    debug: bool = False
+
+    api_v1_prefix: str = "/api/v1"
+
+    data_dir: Path = BASE_DIR / "data"
+    max_upload_size_mb: int = 50
+    allowed_extensions: tuple[str, ...] = (
+        ".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif", ".webp", ".pdf",
+    )
+
+    # OCR engine
+    ocr_lang: str = "en"
+    ocr_det_model: str = "PP-OCRv5_mobile_det"
+    ocr_rec_model: str = "PP-OCRv5_mobile_rec"
+    ocr_device: str = "cpu"
+    ocr_enable_mkldnn: bool = False
+    ocr_cpu_threads: int = 4
+    ocr_use_doc_orientation_classify: bool = True
+    ocr_use_doc_unwarping: bool = False
+    ocr_use_textline_orientation: bool = True
+
+    @property
+    def uploads_dir(self) -> Path:
+        return self.data_dir / "uploads"
+
+    @property
+    def results_dir(self) -> Path:
+        return self.data_dir / "results"
+
+    def ensure_dirs(self) -> None:
+        self.uploads_dir.mkdir(parents=True, exist_ok=True)
+        self.results_dir.mkdir(parents=True, exist_ok=True)
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()
