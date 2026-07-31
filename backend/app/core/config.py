@@ -25,8 +25,10 @@ class Settings(BaseSettings):
         ".png", ".jpg", ".jpeg", ".bmp", ".tiff", ".tif", ".webp", ".pdf",
     )
 
-    # OCR engine
+    # OCR engine (PP-StructureV3 pipeline)
+    ocr_pipeline: str = "PP-StructureV3"
     ocr_lang: str = "en"
+    ocr_layout_model: str = "PP-DocLayout_plus-L"
     ocr_det_model: str = "PP-OCRv5_mobile_det"
     ocr_rec_model: str = "PP-OCRv5_mobile_rec"
     ocr_device: str = "cpu"
@@ -35,6 +37,11 @@ class Settings(BaseSettings):
     ocr_use_doc_orientation_classify: bool = True
     ocr_use_doc_unwarping: bool = False
     ocr_use_textline_orientation: bool = True
+    ocr_use_table_recognition: bool = True
+    ocr_use_formula_recognition: bool = False
+    ocr_use_chart_recognition: bool = False
+    ocr_use_seal_recognition: bool = False
+    ocr_use_region_detection: bool = True
 
     @property
     def uploads_dir(self) -> Path:
