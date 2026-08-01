@@ -225,6 +225,8 @@ class OCRService:
             raw_json = res.json.get("res", {})
             markdown = (res.markdown or {}).get("markdown_texts", "")
             pages.append(page_from_raw(raw_json, index, markdown=markdown))
+        del raw_results
+        self._release_gpu_cache()
 
         return OCRResult(
             result_id=result_id,
@@ -282,3 +284,16 @@ class OCRService:
             if self._engine is not None:
                 self._engine.close()
                 self._engine = None
+        self._release_gpu_cache()
+
+    def _release_gpu_cache(self) -> None:
+        """Return per-request cached GPU memory to the driver (models stay loaded)."""
+        if not self._settings.ocr_device.startswith("gpu"):
+            return
+        try:
+            import paddle
+
+            if paddle.device.is_compiled_with_cuda():
+                paddle.device.cuda.empty_cache()
+        except Exception:
+            pass

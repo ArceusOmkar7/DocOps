@@ -6,11 +6,17 @@ dependencies = [
     "fastapi[standard]>=0.141.1",
     "onnxruntime>=1.28.0",
     "paddleocr>=3.7.0",
-    "paddlepaddle>=3.3.1",
+    "paddlepaddle-gpu>=3.3.1",
     "paddlex[ocr]>=3.7.2",
     "pydantic-settings>=2.14.2",
     "python-multipart>=0.0.32",
 ]
+
+[tool.uv]
+environments = ["sys_platform == 'win32' and python_full_version >= '3.12'"]
+
+[tool.uv.sources]
+paddlepaddle-gpu = { url = "https://paddle-whl.bj.bcebos.com/stable/cu126/paddlepaddle-gpu/paddlepaddle_gpu-3.3.1-cp312-cp312-win_amd64.whl" }
 
 [dependency-groups]
 dev = [
