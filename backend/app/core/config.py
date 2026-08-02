@@ -64,6 +64,9 @@ class Settings(BaseSettings):
     llm_classify_max_tokens: int = 300
     llm_classify_min_confidence: float = 0.0
 
+    # Database (PostgreSQL via asyncpg)
+    database_url: str = "postgresql+asyncpg://localhost/ai_docs_orch"
+
     @property
     def uploads_dir(self) -> Path:
         return self.data_dir / "uploads"

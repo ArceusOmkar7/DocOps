@@ -11,6 +11,7 @@ from .api.deps import get_ocr_service
 from .api.v1.router import api_router
 from .core.config import get_settings
 from .core.logging import setup_logging
+from .db.engine import engine as db_engine
 
 setup_logging()
 
@@ -22,6 +23,7 @@ async def lifespan(app: FastAPI):
     settings.ensure_dirs()
     yield
     get_ocr_service().close()
+    await db_engine.dispose()
 
 
 def create_app() -> FastAPI:
