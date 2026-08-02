@@ -75,6 +75,37 @@ def extract(
 
 
 @router.get(
+    "/results",
+    summary="List stored OCR results",
+)
+def list_results(
+    settings: Settings = Depends(get_settings),
+) -> dict:
+    """Enumerate every persisted result with a lightweight summary row."""
+    results: list[dict] = []
+    if settings.results_dir.exists():
+        for result_id_dir in sorted(settings.results_dir.iterdir()):
+            result_path = result_dir(settings, result_id_dir.name) / "result.json"
+            if not result_path.exists():
+                continue
+            try:
+                data = load_json(result_path)
+            except (OSError, ValueError):
+                continue
+            results.append(
+                {
+                    "id": result_id_dir.name,
+                    "filename": data.get("filename", ""),
+                    "file_type": data.get("file_type", ""),
+                    "page_count": data.get("page_count", 0),
+                    "created_at": data.get("created_at"),
+                    "source_url": data.get("source_url"),
+                }
+            )
+    return {"results": results, "total": len(results)}
+
+
+@router.get(
     "/results/{result_id}",
     response_model=OCRResult,
     summary="Fetch a stored OCR result",

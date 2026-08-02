@@ -19,6 +19,12 @@ class Settings(BaseSettings):
 
     api_v1_prefix: str = "/api/v1"
 
+    # Browsers that may call this API (the Next.js dev server).
+    cors_origins: tuple[str, ...] = (
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    )
+
     data_dir: Path = BASE_DIR / "data"
     max_upload_size_mb: int = 50
     allowed_extensions: tuple[str, ...] = (
