@@ -89,7 +89,8 @@ class Document(BaseModel):
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     # Downstream processing status
-    extraction_status: str = "pending"  # pending | success | failed | needs_review
+    # pending | success | failed | needs_review | unsupported
+    extraction_status: str = "pending"
     needs_human_review: bool = False
     review_reason: str | None = None
 

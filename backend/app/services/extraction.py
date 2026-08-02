@@ -1,17 +1,24 @@
-"""LLM-based extraction: OCR markdown -> business objects (Document + Invoice).
+"""LLM-based document extraction: OCR markdown -> Document (+ typed business object).
 
-The service asks an OpenAI-compatible chat endpoint for strict JSON, validates it
-against the extraction schemas, and on failure feeds the validation error back to
-the model and retries (up to `llm_max_retries` attempts). Business-level checks
-(totals balancing, qty*unit == line_total) are separate from Pydantic's structural
-validation and only flag the document for human review.
+Two decoupled steps (separate LLM calls, so a mis-classified document can never be
+force-molded into a wrong schema):
+
+1. Classification — a cheap, fast call that only picks the document type ("unknown"
+   when unclear). Runs before any schema is chosen.
+2. Extraction — routes to a type-specific extractor via a capability registry. Today
+   only "invoice" has an extractor; other supported types return a clean
+   "unsupported" Document instead of a fake-but-valid Invoice (all invoice fields are
+   optional, so forcing a wrong type through would "validate" garbage).
+
+Each step validates against Pydantic and may retry by feeding the validation error
+back to the model (up to `llm_max_retries` attempts).
 """
 
 from __future__ import annotations
 
 import json
 import re
-from typing import Any
+from typing import Any, Callable
 
 import httpx
 from pydantic import BaseModel, Field, ValidationError
@@ -24,59 +31,60 @@ from ..schemas.extraction import (
     Invoice,
 )
 
-SYSTEM_PROMPT = """You extract structured business data from OCR markdown of a document.
+CLASSIFY_PROMPT = """You classify the type of a business document from its OCR output.
+Return ONLY a single JSON object:
+{"document_type": "invoice|receipt|bank_statement|purchase_order|gst_return|unknown",
+ "confidence": 0.9, "reason": "one short phrase"}
+- "document_type": "unknown" when the document does not clearly match any listed type
+  (extraction will be skipped for it).
+- "confidence": 0-1; how sure you are of the classification.
+Keep the response small and fast."""
 
-Rules:
-- Return ONLY a single valid JSON object. No prose, no code fences.
-- Use null for any value you cannot determine. Never invent data.
-- Numbers are plain numbers (e.g. 18.0, not "18%"). Dates are ISO 8601 (YYYY-MM-DD).
-- Identify the seller (issuer) and buyer (recipient) companies from header/footer blocks.
-- Split table rows into one entry per line in "items".
+INVOICE_PROMPT = """You extract invoice data from OCR markdown. Return ONLY a single
+valid JSON object matching the invoice schema below. Never invent values; use null when
+any field is missing or unreadable. Numbers are plain numbers (e.g. 18.0, not "18%");
+dates are ISO 8601 (YYYY-MM-DD). The seller is the issuer; the buyer is the recipient.
+Split each table row into one entry under "items".
 
 JSON schema:
 {
-  "document_type": "invoice|receipt|bank_statement|purchase_order|gst_return|unknown",
-  "invoice": {
-    "invoice_number": "string or null",
-    "invoice_date": "YYYY-MM-DD or null",
-    "due_date": "YYYY-MM-DD or null",
-    "purchase_order_ref": "string or null",
-    "seller": {"name": "...", "address": {"line1": "...", "line2": null, "city": "...",
-               "state": "...", "postal_code": "...", "country": "..."},
-               "tax_id": "...", "email": "...", "phone": "..."},
-    "buyer": {"name": "...", "address": {...}, "tax_id": "...", "email": "...", "phone": "..."},
-    "currency": "ISO code or null",
-    "items": [{"description": "...", "quantity": 1, "unit_price": 1.0,
-               "tax_rate": 18.0, "line_total": 1.0}],
-    "subtotal": 1.0,
-    "tax": {"cgst": 1.0, "sgst": 1.0, "igst": 1.0, "vat": 1.0,
-            "other_tax_label": "...", "other_tax_amount": 1.0},
-    "total_tax": 1.0,
-    "total": 1.0,
-    "amount_paid": 1.0,
-    "balance_due": 1.0,
-    "payment_terms": "string or null",
-    "notes": "string or null"
-  }
-}
-
-If the document is not an invoice, set document_type accordingly and make "invoice"
-null (do not try to fill invoice fields). Unknown values inside invoice fields are null."""
+  "invoice_number": "string or null",
+  "invoice_date": "YYYY-MM-DD or null",
+  "due_date": "YYYY-MM-DD or null",
+  "purchase_order_ref": "string or null",
+  "seller": {"name": "...", "address": {"line1": "...", "line2": null, "city": "...",
+             "state": "...", "postal_code": "...", "country": "..."},
+             "tax_id": "...", "email": "...", "phone": "..."},
+  "buyer": {"name": "...", "address": {...}, "tax_id": "...", "email": "...", "phone": "..."},
+  "currency": "ISO code or null",
+  "items": [{"description": "...", "quantity": 1, "unit_price": 1.0,
+             "tax_rate": 18.0, "line_total": 1.0}],
+  "subtotal": 1.0,
+  "tax": {"cgst": 1.0, "sgst": 1.0, "igst": 1.0, "vat": 1.0,
+          "other_tax_label": "...", "other_tax_amount": 1.0},
+  "total_tax": 1.0,
+  "total": 1.0,
+  "amount_paid": 1.0,
+  "balance_due": 1.0,
+  "payment_terms": "string or null",
+  "notes": "string or null"
+}"""
 
 
 class ExtractionError(Exception):
-    """Raised when business extraction fails."""
+    """Raised when LLM-driven classification or extraction fails."""
 
 
 class JSONResponseError(ExtractionError):
     """Raised when the LLM reply is not a JSON object."""
 
 
-class _LLMPayload(BaseModel):
-    """The JSON envelope the model returns; drives the retry loop's validation."""
+class _ClassifyPayload(BaseModel):
+    """The classification envelope; drives the classication retry-loop validation."""
 
     document_type: DocumentType = DocumentType.unknown
-    invoice: dict[str, Any] | None = None
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    reason: str | None = None
 
 
 class LLMClient:
@@ -85,17 +93,23 @@ class LLMClient:
     def __init__(self, settings: Settings):
         self._settings = settings
 
-    def chat_json(self, messages: list[dict[str, str]]) -> str:
+    def chat_json(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        model: str | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
         s = self._settings
         url = f"{s.llm_base_url.rstrip('/')}/chat/completions"
         headers = {}
         if s.llm_api_key:
             headers["Authorization"] = f"Bearer {s.llm_api_key}"
         payload: dict[str, Any] = {
-            "model": s.llm_model,
+            "model": model or s.llm_model,
             "messages": messages,
             "temperature": 0.0,
-            "max_tokens": s.llm_max_tokens,
+            "max_tokens": max_tokens or s.llm_max_tokens,
         }
         if s.llm_use_json_mode:
             payload["response_format"] = {"type": "json_object"}
@@ -156,6 +170,37 @@ def _format_validation_error(exc: ValidationError) -> str:
     return "Validation errors: " + json.dumps(errors)
 
 
+def _chat_with_retry(
+    settings: Settings,
+    client: LLMClient,
+    system_prompt: str,
+    markdown: str,
+    validate: Callable[[dict[str, Any]], Any],
+    model: str | None = None,
+    max_tokens: int | None = None,
+) -> Any:
+    """Call the LLM, validate the JSON reply, and retry with error feedback."""
+    messages = [{"role": "system", "content": system_prompt}]
+    last_error: str | None = None
+    for _ in range(settings.llm_max_retries):
+        try:
+            content = client.chat_json(
+                messages + [{"role": "user", "content": _build_user_prompt(markdown, last_error)}],
+                model=model,
+                max_tokens=max_tokens,
+            )
+            return validate(parse_llm_json(content))
+        except httpx.HTTPError as exc:
+            raise ExtractionError(f"LLM request failed: {exc}") from exc
+        except ValidationError as exc:
+            last_error = _format_validation_error(exc)
+        except JSONResponseError as exc:
+            last_error = str(exc)
+    raise ExtractionError(
+        f"LLM call failed after {settings.llm_max_retries} attempts. Last error: {last_error}"
+    )
+
+
 def apply_business_review(invoice: Invoice | None) -> list[str]:
     """Business-sanity checks that Pydantic types can't enforce.
 
@@ -189,12 +234,43 @@ def apply_business_review(invoice: Invoice | None) -> list[str]:
     return reasons
 
 
-class ExtractionService:
-    """Converts OCR markdown into a Document (+ Invoice) with LLM retry."""
+class ClassificationService:
+    """Picks the document type with a cheap, separate LLM call."""
 
     def __init__(self, settings: Settings, llm_client: LLMClient | None = None):
         self._settings = settings
         self._client = llm_client or LLMClient(settings)
+
+    def classify(self, markdown: str) -> _ClassifyPayload:
+        s = self._settings
+        return _chat_with_retry(
+            s,
+            self._client,
+            CLASSIFY_PROMPT,
+            markdown,
+            lambda payload: _ClassifyPayload.model_validate(payload),
+            model=s.llm_classify_model or None,
+            max_tokens=s.llm_classify_max_tokens or None,
+        )
+
+
+class ExtractionService:
+    """Orchestrates classification, then dispatches to the matching extractor."""
+
+    # Document type -> method that extracts its business object.
+    EXTRACTORS: dict[DocumentType, str] = {
+        DocumentType.invoice: "_extract_invoice",
+    }
+
+    def __init__(
+        self,
+        settings: Settings,
+        llm_client: LLMClient | None = None,
+        classifier: ClassificationService | None = None,
+    ):
+        self._settings = settings
+        self._client = llm_client or LLMClient(settings)
+        self._classifier = classifier or ClassificationService(settings, llm_client=self._client)
 
     def extract(
         self,
@@ -204,61 +280,47 @@ class ExtractionService:
         source_filename: str,
         ocr_confidence: float | None = None,
     ) -> DocumentExtraction:
-        messages = [{"role": "system", "content": SYSTEM_PROMPT}]
-        last_error: str | None = None
-        for _ in range(self._settings.llm_max_retries):
-            user_prompt = _build_user_prompt(markdown, last_error)
-            try:
-                content = self._client.chat_json(
-                    messages + [{"role": "user", "content": user_prompt}]
-                )
-                payload = parse_llm_json(content)
-                return self._build_result(
-                    payload,
-                    markdown=markdown,
-                    document_id=document_id,
-                    source_filename=source_filename,
-                    ocr_confidence=ocr_confidence,
-                )
-            except httpx.HTTPError as exc:
-                raise ExtractionError(f"LLM request failed: {exc}") from exc
-            except ValidationError as exc:
-                last_error = _format_validation_error(exc)
-            except JSONResponseError as exc:
-                last_error = str(exc)
-        raise ExtractionError(
-            f"LLM extraction failed after {self._settings.llm_max_retries} attempts. "
-            f"Last error: {last_error}"
-        )
+        classified = self._classifier.classify(markdown)
 
-    def _build_result(
-        self,
-        payload: dict[str, Any],
-        *,
-        markdown: str,
-        document_id: str,
-        source_filename: str,
-        ocr_confidence: float | None,
-    ) -> DocumentExtraction:
-        llm = _LLMPayload.model_validate(payload)
+        document_type = classified.document_type
+        if (
+            classified.confidence is not None
+            and classified.confidence < self._settings.llm_classify_min_confidence
+        ):
+            document_type = DocumentType.unknown
+
         invoice: Invoice | None = None
-        if llm.document_type == DocumentType.invoice:
-            invoice = Invoice.model_validate(
-                {"document_id": document_id, **(llm.invoice or {})}
+        if document_type == DocumentType.unknown:
+            status, review_reason = "needs_review", "Could not determine document type"
+        elif document_type not in self.EXTRACTORS:
+            status, review_reason = "unsupported", (
+                f"Document type '{document_type.value}' is not supported for extraction yet"
             )
+        else:
+            invoice = getattr(self, self.EXTRACTORS[document_type])(markdown, document_id)
+            reasons = apply_business_review(invoice)
+            status = "needs_review" if reasons else "success"
+            review_reason = "; ".join(reasons) if reasons else None
 
-        document = Document(
-            id=document_id,
-            source_filename=source_filename,
-            document_type=llm.document_type,
-            ocr_confidence=ocr_confidence,
-            raw_markdown=markdown,
-            extraction_status="success",
+        return DocumentExtraction(
+            document=Document(
+                id=document_id,
+                source_filename=source_filename,
+                document_type=document_type,
+                ocr_confidence=ocr_confidence,
+                raw_markdown=markdown,
+                extraction_status=status,
+                needs_human_review=bool(review_reason),
+                review_reason=review_reason,
+            ),
+            invoice=invoice,
         )
-        reasons = apply_business_review(invoice)
-        if reasons:
-            document.extraction_status = "needs_review"
-            document.needs_human_review = True
-            document.review_reason = "; ".join(reasons)
 
-        return DocumentExtraction(document=document, invoice=invoice)
+    def _extract_invoice(self, markdown: str, document_id: str) -> Invoice:
+        return _chat_with_retry(
+            self._settings,
+            self._client,
+            INVOICE_PROMPT,
+            markdown,
+            lambda payload: Invoice.model_validate({"document_id": document_id, **payload}),
+        )

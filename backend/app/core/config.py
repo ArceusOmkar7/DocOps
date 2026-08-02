@@ -52,6 +52,12 @@ class Settings(BaseSettings):
     llm_max_tokens: int = 2000
     llm_use_json_mode: bool = True
 
+    # Classification runs BEFORE extraction as its own cheap call. Empty model
+    # falls back to LLM_MODEL; a high min_confidence forces "unknown" when unsure.
+    llm_classify_model: str = ""
+    llm_classify_max_tokens: int = 300
+    llm_classify_min_confidence: float = 0.0
+
     @property
     def uploads_dir(self) -> Path:
         return self.data_dir / "uploads"
