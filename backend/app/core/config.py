@@ -43,6 +43,15 @@ class Settings(BaseSettings):
     ocr_use_seal_recognition: bool = False
     ocr_use_region_detection: bool = True
 
+    # LLM extraction (OpenAI-compatible /chat/completions API)
+    llm_api_key: str = ""
+    llm_base_url: str = "https://api.openai.com/v1"
+    llm_model: str = "gpt-4o-mini"
+    llm_max_retries: int = 3
+    llm_timeout_seconds: float = 60.0
+    llm_max_tokens: int = 2000
+    llm_use_json_mode: bool = True
+
     @property
     def uploads_dir(self) -> Path:
         return self.data_dir / "uploads"

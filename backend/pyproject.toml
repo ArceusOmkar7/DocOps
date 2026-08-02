@@ -1,9 +1,10 @@
 [project]
 name = "backend"
 version = "0.1.0"
-requires-python = ">=3.12"
+requires-python = ">=3.12, <3.13"
 dependencies = [
     "fastapi[standard]>=0.141.1",
+    "httpx>=0.28.1",
     "onnxruntime>=1.28.0",
     "paddleocr>=3.7.0",
     "paddlepaddle-gpu>=3.3.1",
@@ -20,7 +21,6 @@ paddlepaddle-gpu = { url = "https://paddle-whl.bj.bcebos.com/stable/cu126/paddle
 
 [dependency-groups]
 dev = [
-    "httpx>=0.28.1",
     "pytest>=9.1.1",
 ]
 
