@@ -1,0 +1,54 @@
+.appContainer {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--bg-app);
+}
+
+.mainWrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.contentArea {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.content {
+  flex: 1;
+  padding: 16px 20px;
+  overflow-y: auto;
+  overflow-x: auto;
+  min-width: 0;
+  transition: flex 300ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.contentShifted {
+  flex: 1;
+}
+
+.drawerPanel {
+  width: 540px;
+  max-width: calc(100vw - 60px);
+  flex-shrink: 0;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-left: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  box-shadow: -4px 0 20px rgba(15, 23, 42, 0.06);
+  z-index: 30;
+  animation: slideIn 300ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}

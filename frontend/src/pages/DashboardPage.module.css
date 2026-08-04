@@ -1,0 +1,483 @@
+/* ── Page container ─────────────────────────────────── */
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Stat Cards ─────────────────────────────────────── */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ── Card Section wrapper ───────────────────────────── */
+.cardSection {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: box-shadow 200ms ease;
+}
+
+.cardSection:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cardHeader {
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.titleArea {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.cardSubtitle {
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Inputs & controls ──────────────────────────────── */
+.filterSelect {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  color: #334155;
+  font-size: 12px;
+  outline: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.filterSelect:hover {
+  border-color: #cbd5e1;
+}
+
+.filterSelect:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.searchBox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid #e2e8f0;
+  background-color: #f8fafc;
+  width: 180px;
+  color: #94a3b8;
+  transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
+}
+
+.searchBox:focus-within {
+  border-color: #6366f1;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.searchInput {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 12px;
+  width: 100%;
+  color: #0f172a;
+}
+
+.btnPrimary {
+  background-color: #10b981;
+  color: white;
+  font-weight: 600;
+  padding: 7px 14px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  transition: all 150ms ease;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(16, 185, 129, 0.2);
+}
+
+.btnPrimary:hover {
+  background-color: #059669;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  transform: translateY(-1px);
+}
+
+.btnPrimary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(16, 185, 129, 0.2);
+}
+
+.viewAllBtn {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4f46e5;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #e0e9ff;
+  background-color: #f0f4ff;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.viewAllBtn:hover {
+  background-color: #e0e9ff;
+}
+
+/* ── Table ──────────────────────────────────────────── */
+.tableContainer {
+  overflow-x: auto;
+  width: 100%;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.table th {
+  background-color: #f8fafc;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  padding: 8px 10px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #0f172a;
+  vertical-align: middle;
+}
+
+.table tbody tr {
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+  cursor: pointer;
+}
+
+.table tbody tr:hover {
+  background-color: #f8fafc;
+  box-shadow: inset 3px 0 0 #6366f1;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Client cell ──────────────────────────────────── */
+.clientCell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.avatarTeal {
+  background-color: #ccfbf1;
+  color: #0f766e;
+}
+
+.avatarIndigo {
+  background-color: #e0e7ff;
+  color: #4338ca;
+}
+
+.avatarGreen {
+  background-color: #dcfce7;
+  color: #15803d;
+}
+
+.avatarBlue {
+  background-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.avatarEmerald {
+  background-color: #d1fae5;
+  color: #047857;
+}
+
+.clientInfo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.clientName {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.clientGstin {
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Missing count ─────────────────────────────────── */
+.missingBad {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 13px;
+}
+
+.missingWarn {
+  font-weight: 600;
+  color: #d97706;
+  font-size: 13px;
+}
+
+.missingOk {
+  font-weight: 600;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+/* ── Action button ──────────────────────────────────── */
+.actionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  color: #334155;
+  font-size: 11.5px;
+  font-weight: 500;
+  transition: all 150ms ease;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.actionBtn:hover {
+  background-color: #f1f5f9;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+.mutedCell {
+  color: #94a3b8;
+  font-size: 11.5px;
+  white-space: nowrap;
+}
+
+.chevron {
+  color: #cbd5e1;
+}
+
+/* ── Table footer ──────────────────────────────────── */
+.tableFooter {
+  padding: 10px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  font-size: 11.5px;
+  color: #64748b;
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.pageBtn {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  background-color: #ffffff;
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.pageBtn:hover {
+  background-color: #f1f5f9;
+}
+
+.pageBtn.active {
+  background-color: #4f46e5;
+  color: white;
+  border-color: #4f46e5;
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.3);
+}
+
+.pageEllipsis {
+  color: #94a3b8;
+  font-size: 12px;
+  padding: 0 3px;
+}
+
+/* ── Activity Feed ──────────────────────────────────── */
+.activityFeed {
+  display: flex;
+  flex-direction: column;
+}
+
+.activityItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+  cursor: pointer;
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+}
+
+.activityItem:hover {
+  background-color: #f8fafc;
+  box-shadow: inset 3px 0 0 #6366f1;
+}
+
+.actIcon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.actIcon.success {
+  background-color: #dcfce7;
+  color: #16a34a;
+}
+
+.actIcon.warning {
+  background-color: #fef9c3;
+  color: #ca8a04;
+}
+
+.actIcon.info {
+  background-color: #dbeafe;
+  color: #2563eb;
+}
+
+.actIcon.review {
+  background-color: #ede9fe;
+  color: #7c3aed;
+}
+
+.actContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.actMessage {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.actMeta {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+.actBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  color: #475569;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badgeSuccess {
+  background-color: #ecfdf5;
+  color: #065f46;
+}
+
+.badgeWarning {
+  background-color: #fffbeb;
+  color: #92400e;
+}
+
+.badgeInfo {
+  background-color: #eff6ff;
+  color: #1e40af;
+}
+
+.badgeReview {
+  background-color: #f5f3ff;
+  color: #5b21b6;
+}

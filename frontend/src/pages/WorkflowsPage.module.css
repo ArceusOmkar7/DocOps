@@ -1,0 +1,84 @@
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.workflowList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.workflowCard {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: background-color 120ms ease, box-shadow 120ms ease;
+}
+
+.workflowCard:last-child {
+  border-bottom: none;
+}
+
+.workflowCard:hover {
+  background-color: #fafafa;
+  box-shadow: inset 3px 0 0 #6366f1;
+}
+
+.wfTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.wfLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wfIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #e0e9ff;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wfInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wfName {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.wfMeta {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.wfBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wfProgress {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}

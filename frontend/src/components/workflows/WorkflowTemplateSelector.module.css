@@ -1,0 +1,79 @@
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.card:hover {
+  border-color: var(--primary-500);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.iconCircle {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--primary-50);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.category {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.description {
+  font-size: 12.5px;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  margin-top: 4px;
+}
+
+.reqCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--primary-700);
+}

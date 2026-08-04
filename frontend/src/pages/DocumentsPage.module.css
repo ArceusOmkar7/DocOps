@@ -1,0 +1,47 @@
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.docName {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 12.5px;
+}
+
+.docIcon {
+  width: 26px;
+  height: 26px;
+  border-radius: 5px;
+  background-color: #e0e9ff;
+  color: #4338ca;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.typeBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.confHigh {
+  font-weight: 700;
+  color: #16a34a;
+  font-size: 12.5px;
+}
+
+.confLow {
+  font-weight: 700;
+  color: #dc2626;
+  font-size: 12.5px;
+}
