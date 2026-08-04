@@ -23,7 +23,7 @@ const ROUTE_TITLES: Record<string, { title: string; subtitle: string }> = {
 const AppLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
-  const { isOpen, closeDrawer } = useDrawer();
+  const { isOpen, closeDrawer, activeDocumentId, activeResultId } = useDrawer();
 
   const activeMeta = ROUTE_TITLES[location.pathname] || {
     title: 'AI Docs Orchestrator',
@@ -42,7 +42,12 @@ const AppLayout: React.FC = () => {
           </main>
           {isOpen && (
             <div className={styles.drawerPanel}>
-              <DocumentDrawer isOpen={isOpen} onClose={closeDrawer} />
+              <DocumentDrawer
+                isOpen={isOpen}
+                onClose={closeDrawer}
+                documentId={activeDocumentId || undefined}
+                resultId={activeResultId || undefined}
+              />
             </div>
           )}
         </div>

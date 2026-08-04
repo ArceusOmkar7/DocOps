@@ -11,8 +11,27 @@ export function useOCRResults() {
 export function useOCRResult(resultId: string | undefined) {
   return useQuery({
     queryKey: ['ocrResult', resultId],
-    queryFn: () => (resultId ? ocrApi.getResult(resultId) : null),
+    queryFn: () => (resultId ? ocrApi.getResult(resultId).catch(() => null) : null),
     enabled: !!resultId,
+    retry: false,
+  });
+}
+
+export function useOCRMarkdown(resultId: string | undefined) {
+  return useQuery({
+    queryKey: ['ocrMarkdown', resultId],
+    queryFn: async () => {
+      if (!resultId) return '';
+      try {
+        const res = await fetch(ocrApi.getMarkdownUrl(resultId));
+        if (!res.ok) return '';
+        return res.text();
+      } catch {
+        return '';
+      }
+    },
+    enabled: !!resultId,
+    retry: false,
   });
 }
 

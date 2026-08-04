@@ -214,7 +214,8 @@ export interface OCRPage {
 }
 
 export interface OCRResult {
-  id: string;
+  id?: string;
+  result_id: string;
   filename: string;
   file_type: string;
   page_count: number;
@@ -227,3 +228,4 @@ export interface OCRResult {
   source_url?: string;
   markdown_url?: string;
 }
+

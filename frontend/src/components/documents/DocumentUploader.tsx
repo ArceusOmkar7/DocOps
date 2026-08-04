@@ -23,8 +23,12 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSuccess, c
       const ocrResult = await uploadMutation.mutateAsync(file);
 
       // Step 2: Parse into business object via LLM
+      const resId = ocrResult.result_id || ocrResult.id;
+      if (!resId) {
+        throw new Error('OCR extraction returned no result ID');
+      }
       await parseMutation.mutateAsync({
-        resultId: ocrResult.id,
+        resultId: resId,
         clientId,
       });
 

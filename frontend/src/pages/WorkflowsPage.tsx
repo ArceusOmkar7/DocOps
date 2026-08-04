@@ -1,60 +1,48 @@
 import React, { useState } from 'react';
-import { ArrowRight, GitPullRequest, Plus, Sparkles } from 'lucide-react';
+import { ArrowRight, GitPullRequest, Loader2, Plus, Sparkles } from 'lucide-react';
 import { WorkflowTemplateSelector } from '../components/workflows/WorkflowTemplateSelector';
 import { WorkflowTimeline } from '../components/workflows/WorkflowTimeline';
 import { StatusBadge } from '../components/common/StatusBadge';
+import { useClients } from '../hooks/useClients';
+import { useCreateWorkflow, useWorkflows } from '../hooks/useWorkflows';
 import { WorkflowTemplate } from '../data/workflowTemplates';
-import { WorkflowStatus, WorkflowType } from '../types/enums';
+import { DocumentType } from '../types/api';
 import styles from './DashboardPage.module.css';
 import wfStyles from './WorkflowsPage.module.css';
 
 export const WorkflowsPage: React.FC = () => {
   const [showSelector, setShowSelector] = useState(false);
-  const [activeWorkflows, setActiveWorkflows] = useState([
-    {
-      id: 'wf-1',
-      name: 'GST Monthly Filing — April 2025',
-      client: 'ABC Traders',
-      type: WorkflowType.GST_FILING,
-      status: WorkflowStatus.READY_FOR_FILING,
-      received: 12,
-      total: 12,
-      period: 'Apr 1 - Apr 30, 2025',
-    },
-    {
-      id: 'wf-2',
-      name: 'AP 3-Way Match — Hardware Purchase',
-      client: 'XYZ Industries',
-      type: WorkflowType.BOOKKEEPING,
-      status: WorkflowStatus.COLLECTING_DOCUMENTS,
-      received: 9,
-      total: 12,
-      period: 'Apr 1 - Apr 30, 2025',
-    },
-    {
-      id: 'wf-3',
-      name: 'TDS Quarterly Return Q4',
-      client: 'PQR Pvt Ltd',
-      type: WorkflowType.TDS_FILING,
-      status: WorkflowStatus.IN_REVIEW,
-      received: 9,
-      total: 12,
-      period: 'Jan 1 - Mar 31, 2025',
-    },
-  ]);
 
-  const handleLaunchTemplate = (tmpl: WorkflowTemplate) => {
-    setActiveWorkflows([{
-      id: `wf-${Date.now()}`,
-      name: `${tmpl.name} — Current Period`,
-      client: 'ABC Traders',
-      type: tmpl.type,
-      status: WorkflowStatus.COLLECTING_DOCUMENTS,
-      received: 0,
-      total: tmpl.requirements.length,
-      period: 'May 1 - May 31, 2025',
-    }, ...activeWorkflows]);
-    setShowSelector(false);
+  const { data: workflows = [], isLoading } = useWorkflows();
+  const { data: clients = [] } = useClients();
+  const createWorkflowMutation = useCreateWorkflow();
+
+  const handleLaunchTemplate = async (tmpl: WorkflowTemplate) => {
+    const targetClient = clients[0];
+    if (!targetClient) {
+      alert('Please create at least one client before launching a workflow.');
+      return;
+    }
+
+    try {
+      await createWorkflowMutation.mutateAsync({
+        organization_id: targetClient.organization_id,
+        client_id: targetClient.id,
+        name: `${tmpl.name} — Current Period`,
+        workflow_type: tmpl.type as any,
+        period_start: new Date().toISOString().substring(0, 10),
+        period_end: new Date(Date.now() + 30 * 86400000).toISOString().substring(0, 10),
+        requirements: tmpl.requirements.map((req) => ({
+          label: req.label,
+          document_type: req.document_type || DocumentType.INVOICE,
+          required_count: req.required_count || 1,
+        })),
+      });
+
+      setShowSelector(false);
+    } catch (err: any) {
+      alert(`Failed to launch workflow: ${err.message}`);
+    }
   };
 
   return (
@@ -88,44 +76,68 @@ export const WorkflowsPage: React.FC = () => {
       <div className={styles.cardSection}>
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
-            <h3 className={styles.cardTitle}>Active Client Workflows ({activeWorkflows.length})</h3>
-            <span className={styles.cardSubtitle}>Deterministic document checklists & status transitions</span>
+            <h3 className={styles.cardTitle}>Active Client Workflows ({workflows.length})</h3>
+            <span className={styles.cardSubtitle}>
+              Live client document checklists & automated status progression stored in PostgreSQL
+            </span>
           </div>
         </div>
 
-        <div className={wfStyles.workflowList}>
-          {activeWorkflows.map((wf) => (
-            <div key={wf.id} className={wfStyles.workflowCard}>
-              <div className={wfStyles.wfTop}>
-                <div className={wfStyles.wfLeft}>
-                  <div className={wfStyles.wfIcon}>
-                    <GitPullRequest size={16} />
+        {isLoading ? (
+          <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+            <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 8px' }} />
+            <span>Fetching workflows...</span>
+          </div>
+        ) : workflows.length === 0 ? (
+          <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
+            <GitPullRequest size={36} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
+            <div style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
+              No Active Workflows
+            </div>
+            <div style={{ fontSize: 13, marginTop: 4 }}>
+              Click "Launch New Workflow" above to create an automated compliance checklist for your clients.
+            </div>
+          </div>
+        ) : (
+          <div className={wfStyles.workflowList}>
+            {workflows.map((wf) => {
+              const reqs = wf.requirements || [];
+              const periodStr = `${wf.period_start} — ${wf.period_end}`;
+
+              return (
+                <div key={wf.id} className={wfStyles.workflowCard}>
+                  <div className={wfStyles.wfTop}>
+                    <div className={wfStyles.wfLeft}>
+                      <div className={wfStyles.wfIcon}>
+                        <GitPullRequest size={16} />
+                      </div>
+                      <div className={wfStyles.wfInfo}>
+                        <h4 className={wfStyles.wfName}>{wf.name}</h4>
+                        <span className={wfStyles.wfMeta}>
+                          Period: {periodStr}
+                        </span>
+                      </div>
+                    </div>
+                    <StatusBadge status={wf.status} />
                   </div>
-                  <div className={wfStyles.wfInfo}>
-                    <h4 className={wfStyles.wfName}>{wf.name}</h4>
-                    <span className={wfStyles.wfMeta}>
-                      Client: <strong>{wf.client}</strong> · Period: {wf.period}
+
+                  {/* Progression Timeline */}
+                  <WorkflowTimeline status={wf.status} />
+
+                  <div className={wfStyles.wfBottom}>
+                    <span className={wfStyles.wfProgress}>
+                      Checklist Requirements: {reqs.length} Mandatory Document Items
                     </span>
+                    <button className={styles.actionBtn}>
+                      <span>Inspect Checklist ({reqs.length} items)</span>
+                      <ArrowRight size={12} />
+                    </button>
                   </div>
                 </div>
-                <StatusBadge status={wf.status} />
-              </div>
-
-              {/* Progression Timeline */}
-              <WorkflowTimeline status={wf.status} />
-
-              <div className={wfStyles.wfBottom}>
-                <span className={wfStyles.wfProgress}>
-                  Checklist Progress: {wf.received} / {wf.total} Documents Collected
-                </span>
-                <button className={styles.actionBtn}>
-                  <span>Inspect Workflow Checklist</span>
-                  <ArrowRight size={12} />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );

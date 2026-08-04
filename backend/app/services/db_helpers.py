@@ -16,13 +16,13 @@ from ..models.organization import Organization
 
 
 async def get_or_create_default_organization(db: AsyncSession) -> Organization:
-    """Fetch or create a default demo organization for multi-tenant fallback."""
+    """Fetch or create a default organization for tenant fallback."""
     stmt = select(Organization).where(Organization.slug == "default-org")
     res = await db.execute(stmt)
     org = res.scalar_one_or_none()
     if not org:
         org = Organization(
-            name="Default Organization",
+            name="Acme Accounting & Tax Advisory",
             slug="default-org",
             plan="pro",
         )
@@ -33,19 +33,16 @@ async def get_or_create_default_organization(db: AsyncSession) -> Organization:
 
 
 async def get_or_create_default_client(db: AsyncSession, organization_id: uuid.UUID) -> Client:
-    """Fetch or create a default demo client for multi-tenant fallback."""
-    stmt = select(Client).where(
-        Client.organization_id == organization_id,
-        Client.name == "Default Demo Client",
-    )
+    """Fetch the primary existing client for this organization, or create one if none exists."""
+    stmt = select(Client).where(Client.organization_id == organization_id).order_by(Client.created_at.asc())
     res = await db.execute(stmt)
-    client = res.scalar_one_or_none()
+    client = res.scalars().first()
     if not client:
         client = Client(
             organization_id=organization_id,
-            name="Default Demo Client",
+            name="General Client",
             tax_id="27ABCDE1234F1Z5",
-            email="demo@example.com",
+            email="client@example.com",
             status=ClientStatus.on_track,
         )
         db.add(client)

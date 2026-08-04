@@ -7,6 +7,7 @@ import {
   FileCheck,
   FileText,
   FileWarning,
+  Loader2,
   Plus,
   RefreshCw,
   Search,
@@ -17,7 +18,8 @@ import { StatCard } from '../components/common/StatCard';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { ProgressBar } from '../components/common/ProgressBar';
 import { useDrawer } from '../contexts/DrawerContext';
-import { DEMO_CLIENTS, DEMO_RECENT_ACTIVITIES, DEMO_STATS } from '../data/demoData';
+import { useClients } from '../hooks/useClients';
+import { useDocuments } from '../hooks/useDocuments';
 import styles from './DashboardPage.module.css';
 
 export const DashboardPage: React.FC = () => {
@@ -25,7 +27,19 @@ export const DashboardPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
 
-  const filteredClients = DEMO_CLIENTS.filter((c) => {
+  const { data: clients = [], isLoading: loadingClients } = useClients();
+  const { data: documents = [], isLoading: loadingDocs } = useDocuments();
+
+  // Dynamic stat metrics calculated from real database state
+  const totalClients = clients.length;
+  const documentsProcessed = documents.length;
+  const readyForFiling = documents.filter(
+    (d) => d.status === 'validated' || d.status === 'extracted'
+  ).length;
+  const missingDocuments = documents.filter((d) => d.status === 'failed').length;
+  const needReview = documents.filter((d) => d.needs_human_review).length;
+
+  const filteredClients = clients.filter((c) => {
     const matchesSearch =
       c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (c.tax_id && c.tax_id.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -39,45 +53,45 @@ export const DashboardPage: React.FC = () => {
       <div className={styles.statsGrid}>
         <StatCard
           label="Total Clients"
-          value={DEMO_STATS.totalClients}
-          trend={DEMO_STATS.totalClientsTrend}
+          value={totalClients}
+          trend={`${totalClients} active`}
           icon={Users}
           colorTheme="indigo"
-          sparkline={[120, 132, 145, 139, 155, 162, 170, 175, 182]}
+          sparkline={[1, 2, 2, 3, 3, 3, 3, totalClients]}
         />
         <StatCard
           label="Documents Processed"
-          value={DEMO_STATS.documentsProcessed}
-          trend={DEMO_STATS.documentsProcessedTrend}
+          value={documentsProcessed}
+          trend={`${documentsProcessed} total`}
           icon={FileText}
           colorTheme="blue"
-          sparkline={[800, 860, 920, 980, 1050, 1100, 1180, 1220, 1247]}
+          sparkline={[0, 1, 2, 3, 4, documentsProcessed]}
         />
         <StatCard
           label="Ready for Filing"
-          value={DEMO_STATS.readyForFiling}
-          trend={DEMO_STATS.readyForFilingPercentage}
+          value={readyForFiling}
+          trend={documentsProcessed > 0 ? `${((readyForFiling / documentsProcessed) * 100).toFixed(0)}% valid` : '0%'}
           icon={FileCheck}
           colorTheme="green"
-          sparkline={[90, 105, 118, 125, 132, 140, 148, 153, 156]}
+          sparkline={[0, 1, 1, 2, readyForFiling]}
         />
         <StatCard
           label="Missing Documents"
-          value={DEMO_STATS.missingDocuments}
-          trend={DEMO_STATS.missingDocumentsNote}
+          value={missingDocuments}
+          trend={missingDocuments > 0 ? `${missingDocuments} action req` : '0 pending'}
           trendType="warning"
           icon={FileWarning}
           colorTheme="red"
-          sparkline={[28, 25, 22, 24, 20, 19, 21, 18, 18]}
+          sparkline={[0, 0, missingDocuments]}
         />
         <StatCard
           label="Need Review"
-          value={DEMO_STATS.needReview}
-          trend={DEMO_STATS.needReviewNote}
+          value={needReview}
+          trend={needReview > 0 ? `${needReview} flagged` : 'All clear'}
           trendType="warning"
           icon={AlertTriangle}
           colorTheme="amber"
-          sparkline={[12, 10, 9, 11, 8, 7, 8, 6, 6]}
+          sparkline={[0, 1, needReview]}
         />
       </div>
 
@@ -86,7 +100,9 @@ export const DashboardPage: React.FC = () => {
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
             <h3 className={styles.cardTitle}>Clients</h3>
-            <span className={styles.cardSubtitle}>All clients and their document status</span>
+            <span className={styles.cardSubtitle}>
+              Live client records and filing compliance state
+            </span>
           </div>
 
           <div className={styles.headerActions}>
@@ -109,85 +125,89 @@ export const DashboardPage: React.FC = () => {
               <option value="ALL">All Status</option>
               <option value="on_track">On Track</option>
               <option value="awaiting_documents">Awaiting Documents</option>
-              <option value="review_required">Need Review</option>
+              <option value="needs_review">Need Review</option>
               <option value="action_required">Action Required</option>
             </select>
-
-            <button className={styles.btnPrimary}>
-              <Plus size={13} />
-              Add Client
-            </button>
           </div>
         </div>
 
         <div className={styles.tableContainer}>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>Client</th>
-                <th>Status</th>
-                <th>Documents</th>
-                <th>Missing</th>
-                <th>Next Action</th>
-                <th>Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredClients.map((client) => (
-                <tr key={client.id} onClick={openDrawer}>
-                  <td>
-                    <div className={styles.clientCell}>
-                      <div className={`${styles.avatar} ${styles[`avatar${client.avatarColor.charAt(0).toUpperCase() + client.avatarColor.slice(1)}`]}`}>{client.initials}</div>
-                      <div className={styles.clientInfo}>
-                        <span className={styles.clientName}>{client.name}</span>
-                        <span className={styles.clientGstin}>GSTN: {client.tax_id}</span>
-                      </div>
-                    </div>
-                  </td>
-                  <td>
-                    <StatusBadge status={client.status} />
-                  </td>
-                  <td>
-                    <ProgressBar current={client.docProgress.current} total={client.docProgress.total} />
-                  </td>
-                  <td>
-                    <span className={
-                      client.missingCount >= 6 ? styles.missingBad :
-                      client.missingCount >= 1 ? styles.missingWarn :
-                      styles.missingOk
-                    }>
-                      {client.missingCount}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className={styles.actionBtn}
-                      onClick={(e) => { e.stopPropagation(); openDrawer(); }}
-                    >
-                      {client.nextAction === 'Send Reminder' && <Send size={11} />}
-                      {client.nextAction === 'Review Documents' && <Eye size={11} />}
-                      {client.nextAction === 'Generate Report' && <FileCheck size={11} />}
-                      {client.nextAction === 'View Progress' && <BarChart3 size={11} />}
-                      {client.nextAction === 'Follow Up' && <RefreshCw size={11} />}
-                      <span>{client.nextAction}</span>
-                    </button>
-                  </td>
-                  <td className={styles.mutedCell}>{client.updatedAgo}</td>
+          {loadingClients ? (
+            <div style={{ padding: 36, textAlign: 'center', color: '#64748b' }}>
+              <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 8px' }} />
+              <span>Loading client state...</span>
+            </div>
+          ) : filteredClients.length === 0 ? (
+            <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
+              <Users size={32} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
+              <div>No client records found.</div>
+            </div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>Client</th>
+                  <th>Status</th>
+                  <th>Contact Person</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Action</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredClients.map((client) => {
+                  const initials = client.name
+                    .split(' ')
+                    .map((n) => n[0])
+                    .join('')
+                    .substring(0, 2)
+                    .toUpperCase();
+
+                  return (
+                    <tr key={client.id} style={{ cursor: 'pointer' }}>
+                      <td>
+                        <div className={styles.clientCell}>
+                          <div className={`${styles.avatar} ${styles.avatarIndigo}`}>
+                            {initials}
+                          </div>
+                          <div className={styles.clientInfo}>
+                            <span className={styles.clientName}>{client.name}</span>
+                            <span className={styles.clientGstin}>
+                              GSTN: {client.tax_id || 'N/A'}
+                            </span>
+                          </div>
+                        </div>
+                      </td>
+                      <td>
+                        <StatusBadge status={client.status || 'on_track'} />
+                      </td>
+                      <td style={{ color: '#475569' }}>{client.contact_person || 'N/A'}</td>
+                      <td className={styles.mutedCell}>{client.email || 'N/A'}</td>
+                      <td className={styles.mutedCell}>{client.phone || 'N/A'}</td>
+                      <td>
+                        <button
+                          className={styles.actionBtn}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openDrawer();
+                          }}
+                        >
+                          <Eye size={11} />
+                          <span>Inspect</span>
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
         </div>
 
         <div className={styles.tableFooter}>
-          <span>Showing 1 to {filteredClients.length} of {DEMO_STATS.totalClients} clients</span>
-          <div className={styles.pagination}>
-            <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
-            <button className={styles.pageBtn}>2</button>
-            <button className={styles.pageBtn}>3</button>
-            <span className={styles.pageEllipsis}>...</span>
-            <button className={styles.pageBtn}>37</button>
-          </div>
+          <span>
+            Showing {filteredClients.length} of {totalClients} clients
+          </span>
         </div>
       </div>
 
@@ -196,27 +216,48 @@ export const DashboardPage: React.FC = () => {
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
             <h3 className={styles.cardTitle}>Recent Activity</h3>
-            <span className={styles.cardSubtitle}>Real-time agentic AI reasoning and OCR events</span>
+            <span className={styles.cardSubtitle}>
+              Real-time OCR extraction & LLM reasoning event stream
+            </span>
           </div>
-          <button className={styles.viewAllBtn}>View All</button>
         </div>
 
         <div className={styles.activityFeed}>
-          {DEMO_RECENT_ACTIVITIES.map((act) => (
-            <div key={act.id} className={styles.activityItem} onClick={openDrawer}>
-              <div className={`${styles.actIcon} ${styles[act.type]}`}>
-                {act.type === 'success' && <CheckCircle2 size={14} />}
-                {act.type === 'warning' && <AlertTriangle size={14} />}
-                {act.type === 'info' && <FileText size={14} />}
-                {act.type === 'review' && <Eye size={14} />}
-              </div>
-              <div className={styles.actContent}>
-                <span className={styles.actMessage}>{act.message}</span>
-                <span className={styles.actMeta}>{act.meta} • {act.timeAgo}</span>
-              </div>
-              <span className={`${styles.actBadge} ${styles[`badge${act.type.charAt(0).toUpperCase() + act.type.slice(1)}`]}`}>{act.badge}</span>
+          {documents.length === 0 ? (
+            <div style={{ padding: 24, color: '#64748b', fontSize: 13 }}>
+              No recent activity events yet. Upload a document to start stream.
             </div>
-          ))}
+          ) : (
+            documents.slice(0, 5).map((doc) => (
+              <div
+                key={doc.id}
+                className={styles.activityItem}
+                onClick={() => openDrawer(doc.id, doc.ocr_result_id || undefined)}
+              >
+                <div className={`${styles.actIcon} ${doc.needs_human_review ? styles.warning : styles.success}`}>
+                  {doc.needs_human_review ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
+                </div>
+                <div className={styles.actContent}>
+                  <span className={styles.actMessage}>
+                    {doc.needs_human_review
+                      ? `Extraction flagged for review: ${doc.source_filename}`
+                      : `Successfully processed ${doc.source_filename}`}
+                  </span>
+                  <span className={styles.actMeta}>
+                    {doc.document_type ? doc.document_type.toUpperCase() : 'DOCUMENT'} •{' '}
+                    {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleTimeString() : 'Recently'}
+                  </span>
+                </div>
+                <span
+                  className={`${styles.actBadge} ${
+                    doc.needs_human_review ? styles.badgeWarning : styles.badgeSuccess
+                  }`}
+                >
+                  {doc.needs_human_review ? 'Needs Review' : 'Validated'}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
     </div>
