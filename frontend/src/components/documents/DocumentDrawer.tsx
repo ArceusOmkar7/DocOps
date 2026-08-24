@@ -285,7 +285,7 @@ export const DocumentDrawer: React.FC<DocumentDrawerProps> = ({
                   <span>Loading OCR text...</span>
                 ) : (
                   <pre className={styles.rawBlock}>
-                    {ocrResult?.markdown || dbDoc?.raw_markdown || '# No raw markdown text available'}
+                    {ocrResult?.markdown || extractedObj?.markdown || extractedObj?.raw_markdown || '# No raw markdown text available'}
                   </pre>
                 )}
               </div>

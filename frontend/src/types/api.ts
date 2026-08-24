@@ -193,6 +193,7 @@ export interface DbDocument {
   needs_human_review: boolean;
   review_reason?: string | null;
   extracted_data?: Record<string, any> | null;
+  raw_markdown?: string | null;
   metadata_?: Record<string, any> | null;
   uploaded_at: string;
   processed_at?: string | null;
