@@ -8,6 +8,8 @@ export enum DocumentType {
   BANK_STATEMENT = 'bank_statement',
   PURCHASE_ORDER = 'purchase_order',
   GST_RETURN = 'gst_return',
+  TDS_FORM = 'tds_form',
+  INVESTMENT_PROOF = 'investment_proof',
   UNKNOWN = 'unknown',
 }
 

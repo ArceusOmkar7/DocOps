@@ -11,6 +11,13 @@ import {
 import { StatusBadge } from '../common/StatusBadge';
 import { useDocument } from '../../hooks/useDocuments';
 import { useOCRMarkdown, useOCRResult } from '../../hooks/useOCR';
+import { DocumentType } from '../../types/enums';
+import {
+  BankStatementView,
+  GSTReturnView,
+  InvestmentProofView,
+  TDSFormView,
+} from './SchemaViewers';
 import styles from './DocumentDrawer.module.css';
 
 interface DocumentDrawerProps {
@@ -41,15 +48,22 @@ export const DocumentDrawer: React.FC<DocumentDrawerProps> = ({
 
   const isLoading = loadingDoc || (shouldFetchOcr && loadingOcr);
 
-  // Extracted data objects
+  // Extracted data objects (extracted_data holds the business object directly)
   const extractedObj: any = dbDoc?.extracted_data || {};
-  const inv = extractedObj.invoice || {};
+  const inv = extractedObj.invoice ?? extractedObj ?? {};
   const filename = dbDoc?.source_filename || ocrResult?.filename || 'Document_Inspection.pdf';
+  const docTypeEnum = (dbDoc?.document_type as DocumentType) || DocumentType.UNKNOWN;
   const docType = (dbDoc?.document_type || extractedObj.document_type || 'INVOICE').toString().toUpperCase();
   const confidence = dbDoc?.ocr_confidence ?? 0.985;
   const confidencePct = `${(confidence * 100).toFixed(1)}%`;
   const needsReview = dbDoc?.needs_human_review ?? false;
   const reviewReason = dbDoc?.review_reason || 'Needs human verification';
+
+  const isInvoiceLike =
+    docTypeEnum === DocumentType.INVOICE ||
+    docTypeEnum === DocumentType.PURCHASE_ORDER ||
+    docTypeEnum === DocumentType.RECEIPT ||
+    docTypeEnum === DocumentType.UNKNOWN;
 
   const TABS: { key: Tab; label: string }[] = [
     { key: 'overview', label: 'Overview' },
@@ -109,9 +123,19 @@ export const DocumentDrawer: React.FC<DocumentDrawerProps> = ({
           <>
             {activeTab === 'overview' && (
               <>
-                {/* Document Info */}
-                <div className={styles.section}>
-                  <div className={styles.sectionHeader}>Document Info</div>
+                {docTypeEnum === DocumentType.BANK_STATEMENT ? (
+                  <BankStatementView data={extractedObj} />
+                ) : docTypeEnum === DocumentType.GST_RETURN ? (
+                  <GSTReturnView data={extractedObj} />
+                ) : docTypeEnum === DocumentType.TDS_FORM ? (
+                  <TDSFormView data={extractedObj} />
+                ) : docTypeEnum === DocumentType.INVESTMENT_PROOF ? (
+                  <InvestmentProofView data={extractedObj} />
+                ) : isInvoiceLike && (
+                  <>
+                  {/* Document Info */}
+                  <div className={styles.section}>
+                    <div className={styles.sectionHeader}>Document Info</div>
                   <div className={styles.infoGrid}>
                     <div className={styles.infoItem}>
                       <span className={styles.infoLabel}>Document Type</span>
@@ -246,6 +270,8 @@ export const DocumentDrawer: React.FC<DocumentDrawerProps> = ({
                     </div>
                   </div>
                 </div>
+                  </>
+                )}
 
                 {/* Alert Banner */}
                 {needsReview && (

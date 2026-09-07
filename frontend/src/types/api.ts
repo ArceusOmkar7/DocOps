@@ -81,9 +81,130 @@ export interface Invoice {
   extraction_confidence?: number | null;
 }
 
+// --- Phase 1 multi-document family schemas (mirror backend schemas/extraction.py) ---
+
+export interface BankTransaction {
+  date?: string | null;
+  description?: string | null;
+  cheque_ref_no?: string | null;
+  debit?: number | null;
+  credit?: number | null;
+  balance?: number | null;
+  category?: string | null;
+}
+
+export interface BankStatement {
+  document_id: string;
+  account_number?: string | null;
+  bank_name?: string | null;
+  ifsc_code?: string | null;
+  account_holder?: string | null;
+  period_start?: string | null;
+  period_end?: string | null;
+  opening_balance?: number | null;
+  closing_balance?: number | null;
+  currency?: string | null;
+  transactions?: BankTransaction[];
+  extraction_confidence?: number | null;
+}
+
+export interface TaxAmountSummary {
+  igst?: number | null;
+  cgst?: number | null;
+  sgst?: number | null;
+  cess?: number | null;
+}
+
+export interface ITCBreakdown {
+  igst?: number | null;
+  cgst?: number | null;
+  sgst?: number | null;
+  cess?: number | null;
+  total?: number | null;
+}
+
+export type GSTReturnType = 'GSTR-1' | 'GSTR-3B' | 'GSTR-2B' | 'GSTR-9' | 'GSTR-9C';
+
+export interface GSTReturn {
+  document_id: string;
+  return_type?: GSTReturnType | null;
+  gstin?: string | null;
+  return_period?: string | null; // MM-YYYY
+  filing_date?: string | null;
+  arn_number?: string | null;
+  legal_name?: string | null;
+  trade_name?: string | null;
+  taxable_turnover?: number | null;
+  outward_tax_summary?: TaxAmountSummary;
+  itc_available?: ITCBreakdown;
+  itc_reversed?: ITCBreakdown;
+  net_itc?: ITCBreakdown;
+  extraction_confidence?: number | null;
+}
+
+export interface TDSSectionDeduction {
+  section_code?: string | null;
+  amount_paid_credited?: number | null;
+  tds_deducted?: number | null;
+  tds_deposited?: number | null;
+}
+
+export type TDSFormKind = 'Form 16' | 'Form 16A' | 'Form 26AS' | 'AIS' | 'TIS';
+
+export interface TDSForm {
+  document_id: string;
+  form_type?: TDSFormKind | null;
+  pan?: string | null;
+  tan_of_deductor?: string | null;
+  deductor_name?: string | null;
+  assessment_year?: string | null;
+  financial_year?: string | null;
+  gross_salary?: number | null;
+  total_amount_credited?: number | null;
+  total_tds_deducted?: number | null;
+  total_tds_deposited?: number | null;
+  section_deductions?: TDSSectionDeduction[];
+  extraction_confidence?: number | null;
+}
+
+export type InvestmentSection =
+  | '80C'
+  | '80CCC'
+  | '80CCD'
+  | '80CCD(1B)'
+  | '80D'
+  | '80DD'
+  | '80DDB'
+  | '80E'
+  | '80G'
+  | '80TTA'
+  | '80TTB'
+  | '24b'
+  | string
+  | null;
+
+export interface InvestmentProof {
+  document_id: string;
+  pan?: string | null;
+  taxpayer_name?: string | null;
+  policy_account_no?: string | null;
+  institution_name?: string | null;
+  section?: InvestmentSection;
+  amount_paid?: number | null;
+  date_of_payment?: string | null;
+  mode_of_payment?: string | null;
+  financial_year?: string | null;
+  notes?: string | null;
+  extraction_confidence?: number | null;
+}
+
 export interface DocumentExtraction {
   document: Document;
   invoice?: Invoice | null;
+  bank_statement?: BankStatement | null;
+  gst_return?: GSTReturn | null;
+  tds_form?: TDSForm | null;
+  investment_proof?: InvestmentProof | null;
 }
 
 export interface Organization {

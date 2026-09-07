@@ -28,6 +28,13 @@ class Document(Base, UUIDPrimaryKeyMixin):
         nullable=False,
         index=True,
     )
+    client_member_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("client_members.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+        comment="Individual family member this document belongs to (Phase 1.3 segregation)",
+    )
     source_filename: Mapped[str] = mapped_column(String(500), nullable=False)
     file_path: Mapped[str | None] = mapped_column(Text, nullable=True)
     ocr_result_id: Mapped[str | None] = mapped_column(
@@ -74,6 +81,9 @@ class Document(Base, UUIDPrimaryKeyMixin):
     )
     client: Mapped["Client"] = relationship(  # noqa: F821
         back_populates="documents",
+    )
+    client_member: Mapped["ClientMember | None"] = relationship(  # noqa: F821
+        lazy="selectin",
     )
     workflow_links: Mapped[list["WorkflowDocument"]] = relationship(  # noqa: F821
         back_populates="document", lazy="selectin",

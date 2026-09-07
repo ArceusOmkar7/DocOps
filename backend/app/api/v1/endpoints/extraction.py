@@ -59,16 +59,23 @@ async def parse(
 
     out_dir = result_dir(settings, result_id)
     save_json(out_dir / "document.json", parsed.document.model_dump(mode="json"))
-    if parsed.invoice is not None:
-        save_json(out_dir / "invoice.json", parsed.invoice.model_dump(mode="json"))
 
-    # Persist to PostgreSQL database as well
-    extracted_biz_object = parsed.invoice.model_dump(mode="json") if parsed.invoice else None
+    # Persist every populated business object (invoice.json, bank_statement.json, ...)
+    # and use it as the DB extracted_data payload.
+    business_payloads = {
+        name: obj.model_dump(mode="json")
+        for name, obj in parsed.business_objects().items()
+    }
+    for name, payload in business_payloads.items():
+        save_json(out_dir / f"{name}.json", payload)
+
+    extracted_biz_object = next(iter(business_payloads.values()), None)
     metadata_info = {
         "page_count": result.get("page_count", 1),
         "ocr_engine": result.get("engine", {}).get("pipeline", settings.ocr_pipeline),
         "processing_time_ms": result.get("processing_time_ms"),
     }
+    # Persist to PostgreSQL as well
     await save_extracted_document_to_db(
         db,
         result_id=result_id,

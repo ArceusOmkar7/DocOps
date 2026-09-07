@@ -22,6 +22,8 @@ class DocumentType(str, enum.Enum):
     bank_statement = "bank_statement"
     purchase_order = "purchase_order"
     gst_return = "gst_return"
+    tds_form = "tds_form"
+    investment_proof = "investment_proof"
     unknown = "unknown"
 
 

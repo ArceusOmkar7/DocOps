@@ -5,10 +5,10 @@ force-molded into a wrong schema):
 
 1. Classification — a cheap, fast call that only picks the document type ("unknown"
    when unclear). Runs before any schema is chosen.
-2. Extraction — routes to a type-specific extractor via a capability registry. Today
-   only "invoice" has an extractor; other supported types return a clean
-   "unsupported" Document instead of a fake-but-valid Invoice (all invoice fields are
-   optional, so forcing a wrong type through would "validate" garbage).
+2. Extraction — routes to a type-specific extractor via a capability registry
+   (invoice, bank_statement, gst_return, tds_form, investment_proof). Registered-but
+   unimplemented types return a clean "unsupported" Document instead of a fake-but-valid
+   business object.
 
 Each step validates against Pydantic and may retry by feeding the validation error
 back to the model (up to `llm_max_retries` attempts).
@@ -25,18 +25,31 @@ from pydantic import BaseModel, Field, ValidationError
 
 from ..core.config import Settings
 from ..schemas.extraction import (
+    BankStatement,
     Document,
     DocumentExtraction,
     DocumentType,
+    GSTReturn,
     Invoice,
+    InvestmentProof,
+    TDSForm,
 )
 
 CLASSIFY_PROMPT = """You classify the type of a business document from its OCR output.
 Return ONLY a single JSON object:
-{"document_type": "invoice|receipt|bank_statement|purchase_order|gst_return|unknown",
+{"document_type": "invoice|receipt|bank_statement|purchase_order|gst_return|tds_form|investment_proof|unknown",
  "confidence": 0.9, "reason": "one short phrase"}
-- "document_type": "unknown" when the document does not clearly match any listed type
-  (extraction will be skipped for it).
+- "document_type":
+  - "bank_statement": bank account statements with transaction tables (date, narration,
+    debit, credit, balance).
+  - "gst_return": GST portal returns such as GSTR-1, GSTR-3B, GSTR-2B (GSTIN,
+    return period, outward supplies / ITC tables).
+  - "tds_form": Indian TDS documents — Form 16, Form 16A, Form 26AS, AIS or TIS
+    (PAN/TAN, assessment year, TDS deducted/deposited).
+  - "investment_proof": Chapter VI-A investment proofs — LIC premium receipts, PPF,
+    ELSS, health insurance premiums, home loan interest certificates (80C/80D/24b...).
+  - "unknown" when the document does not clearly match any listed type
+    (extraction will be skipped for it).
 - "confidence": 0-1; how sure you are of the classification.
 Keep the response small and fast."""
 
@@ -67,6 +80,94 @@ JSON schema:
   "amount_paid": 1.0,
   "balance_due": 1.0,
   "payment_terms": "string or null",
+  "notes": "string or null"
+}"""
+
+BANK_STATEMENT_PROMPT = """You extract bank statement data from OCR markdown.
+Return ONLY a single valid JSON object matching the schema below. Never invent
+values; use null when any field is missing or unreadable. Numbers are plain
+numbers without separators (e.g. 12500.75, never "12,500.75"); debit and credit
+are positive amounts in their own column; dates are ISO 8601 (YYYY-MM-DD).
+Split each transaction row into one entry under "transactions" in statement order.
+
+JSON schema:
+{
+  "account_number": "string or null",
+  "bank_name": "string or null",
+  "ifsc_code": "string or null",
+  "account_holder": "string or null",
+  "period_start": "YYYY-MM-DD or null",
+  "period_end": "YYYY-MM-DD or null",
+  "opening_balance": 1.0,
+  "closing_balance": 1.0,
+  "currency": "ISO code or null (INR for Indian statements)",
+  "transactions": [{"date": "YYYY-MM-DD", "description": "...", "cheque_ref_no": "...",
+                    "debit": 1.0, "credit": 1.0, "balance": 1.0, "category": "..."}]
+}"""
+
+GST_RETURN_PROMPT = """You extract GST return data from OCR markdown of Indian GST
+portal returns (GSTR-1, GSTR-3B, GSTR-2B, GSTR-9/9C). Return ONLY a single valid JSON
+object matching the schema below. Never invent values; use null when missing.
+Numbers are plain numbers without separators; return_period is MM-YYYY;
+filing_date is ISO 8601 (YYYY-MM-DD).
+
+JSON schema:
+{
+  "return_type": "GSTR-1 | GSTR-3B | GSTR-2B | GSTR-9 | GSTR-9C or null",
+  "gstin": "15-char GSTIN or null",
+  "return_period": "MM-YYYY or null",
+  "filing_date": "YYYY-MM-DD or null",
+  "arn_number": "string or null",
+  "legal_name": "string or null",
+  "trade_name": "string or null",
+  "taxable_turnover": 1.0,
+  "outward_tax_summary": {"igst": 1.0, "cgst": 1.0, "sgst": 1.0, "cess": 1.0},
+  "itc_available": {"igst": 1.0, "cgst": 1.0, "sgst": 1.0, "cess": 1.0, "total": 1.0},
+  "itc_reversed": {"igst": 1.0, "cgst": 1.0, "sgst": 1.0, "cess": 1.0, "total": 1.0},
+  "net_itc": {"igst": 1.0, "cgst": 1.0, "sgst": 1.0, "cess": 1.0, "total": 1.0}
+}"""
+
+TDS_FORM_PROMPT = """You extract Indian TDS form data from OCR markdown — Form 16,
+Form 16A, Form 26AS, AIS (Annual Information Statement) or TIS (Taxpayer Information
+Summary). Return ONLY a single valid JSON object matching the schema below. Never
+invent values; use null when missing. Numbers are plain numbers without separators;
+years use FY notation like "2025-26" and AY notation like "2026-27".
+
+JSON schema:
+{
+  "form_type": "Form 16 | Form 16A | Form 26AS | AIS | TIS or null",
+  "pan": "10-char PAN of the deductee or null",
+  "tan_of_deductor": "TAN or null",
+  "deductor_name": "employer/bank/payer name or null",
+  "assessment_year": "YYYY-YY or null",
+  "financial_year": "YYYY-YY or null",
+  "gross_salary": 1.0,
+  "total_amount_credited": 1.0,
+  "total_tds_deducted": 1.0,
+  "total_tds_deposited": 1.0,
+  "section_deductions": [{"section_code": "194C", "amount_paid_credited": 1.0,
+                          "tds_deducted": 1.0, "tds_deposited": 1.0}]
+}"""
+
+INVESTMENT_PROOF_PROMPT = """You extract Chapter VI-A investment proof data from OCR
+markdown — LIC premium receipts, PPF passbook entries, ELSS statements, health
+insurance premium receipts, home loan interest certificates etc. Return ONLY a single
+valid JSON object matching the schema below. Never invent values; use null when
+missing. Numbers are plain numbers; date is ISO 8601 (YYYY-MM-DD); section uses the
+standard label (80C, 80D, 80CCD, 80CCD(1B), 24b...). If the document contains several
+investments, extract only the primary/most prominent one.
+
+JSON schema:
+{
+  "pan": "10-char PAN or null",
+  "taxpayer_name": "string or null",
+  "policy_account_no": "string or null",
+  "institution_name": "string or null",
+  "section": "80C | 80D | 80CCD | ... | 24b or null",
+  "amount_paid": 1.0,
+  "date_of_payment": "YYYY-MM-DD or null",
+  "mode_of_payment": "string or null",
+  "financial_year": "YYYY-YY or null",
   "notes": "string or null"
 }"""
 
@@ -234,6 +335,78 @@ def apply_business_review(invoice: Invoice | None) -> list[str]:
     return reasons
 
 
+def _review_bank_statement(statement: BankStatement) -> list[str]:
+    """Light structural checks (statutory validation arrives in Phase 2).
+
+    Verifies the running balance: balance[i] ≈ balance[i-1] - debit + credit.
+    """
+    reasons: list[str] = []
+    previous_balance = statement.opening_balance
+    for idx, txn in enumerate(statement.transactions, start=1):
+        if txn.balance is None:
+            continue
+        if previous_balance is not None:
+            debit = txn.debit or 0.0
+            credit = txn.credit or 0.0
+            expected = previous_balance - debit + credit
+            if abs(expected - txn.balance) > 0.05:
+                reasons.append(
+                    f"transaction {idx} running balance mismatch: "
+                    f"expected {expected:.2f}, got {txn.balance:.2f}"
+                )
+        previous_balance = txn.balance
+
+    if (
+        statement.opening_balance is not None
+        and statement.closing_balance is not None
+        and statement.transactions
+        and statement.transactions[-1].balance is not None
+    ):
+        last = statement.transactions[-1].balance
+        if abs(last - statement.closing_balance) > 0.05:
+            reasons.append(
+                f"last transaction balance ({last:.2f}) != closing balance "
+                f"({statement.closing_balance:.2f})"
+            )
+    return reasons
+
+
+def _review_gst_return(gst_return: GSTReturn) -> list[str]:
+    """Light structural checks (statutory validation arrives in Phase 2)."""
+    reasons: list[str] = []
+
+    def total(breakdown) -> float | None:
+        if breakdown.total is not None:
+            return breakdown.total
+        parts = [breakdown.igst, breakdown.cgst, breakdown.sgst, breakdown.cess]
+        if any(part is not None for part in parts):
+            return sum(part or 0.0 for part in parts)
+        return None
+
+    available, reversed_, net = total(gst_return.itc_available), total(gst_return.itc_reversed), total(gst_return.net_itc)
+    if None not in (available, reversed_, net):
+        expected = available - reversed_
+        if abs(expected - net) > 0.05:
+            reasons.append(
+                f"net ITC ({net:.2f}) != itc_available - itc_reversed ({expected:.2f})"
+            )
+    return reasons
+
+
+def apply_structural_review(
+    document_type: DocumentType,
+    business_object: Invoice | BankStatement | GSTReturn | TDSForm | InvestmentProof | None,
+) -> list[str]:
+    """Dispatch business-sanity checks for whichever schema was extracted."""
+    if isinstance(business_object, Invoice):
+        return apply_business_review(business_object)
+    if isinstance(business_object, BankStatement):
+        return _review_bank_statement(business_object)
+    if isinstance(business_object, GSTReturn):
+        return _review_gst_return(business_object)
+    return []
+
+
 class ClassificationService:
     """Picks the document type with a cheap, separate LLM call."""
 
@@ -257,9 +430,14 @@ class ClassificationService:
 class ExtractionService:
     """Orchestrates classification, then dispatches to the matching extractor."""
 
-    # Document type -> method that extracts its business object.
-    EXTRACTORS: dict[DocumentType, str] = {
-        DocumentType.invoice: "_extract_invoice",
+    # Document type -> (method that extracts its business object,
+    #                   attribute name on DocumentExtraction).
+    EXTRACTORS: dict[DocumentType, tuple[str, str]] = {
+        DocumentType.invoice: ("_extract_invoice", "invoice"),
+        DocumentType.bank_statement: ("_extract_bank_statement", "bank_statement"),
+        DocumentType.gst_return: ("_extract_gst_return", "gst_return"),
+        DocumentType.tds_form: ("_extract_tds_form", "tds_form"),
+        DocumentType.investment_proof: ("_extract_investment_proof", "investment_proof"),
     }
 
     def __init__(
@@ -289,7 +467,7 @@ class ExtractionService:
         ):
             document_type = DocumentType.unknown
 
-        invoice: Invoice | None = None
+        business_object = None
         if document_type == DocumentType.unknown:
             status, review_reason = "needs_review", "Could not determine document type"
         elif document_type not in self.EXTRACTORS:
@@ -297,12 +475,13 @@ class ExtractionService:
                 f"Document type '{document_type.value}' is not supported for extraction yet"
             )
         else:
-            invoice = getattr(self, self.EXTRACTORS[document_type])(markdown, document_id)
-            reasons = apply_business_review(invoice)
+            extractor_name, field_name = self.EXTRACTORS[document_type]
+            business_object = getattr(self, extractor_name)(markdown, document_id)
+            reasons = apply_structural_review(document_type, business_object)
             status = "needs_review" if reasons else "success"
             review_reason = "; ".join(reasons) if reasons else None
 
-        return DocumentExtraction(
+        extraction = DocumentExtraction(
             document=Document(
                 id=document_id,
                 source_filename=source_filename,
@@ -313,8 +492,10 @@ class ExtractionService:
                 needs_human_review=bool(review_reason),
                 review_reason=review_reason,
             ),
-            invoice=invoice,
         )
+        if business_object is not None:
+            setattr(extraction, field_name, business_object)
+        return extraction
 
     def _extract_invoice(self, markdown: str, document_id: str) -> Invoice:
         return _chat_with_retry(
@@ -323,4 +504,40 @@ class ExtractionService:
             INVOICE_PROMPT,
             markdown,
             lambda payload: Invoice.model_validate({"document_id": document_id, **payload}),
+        )
+
+    def _extract_bank_statement(self, markdown: str, document_id: str) -> BankStatement:
+        return _chat_with_retry(
+            self._settings,
+            self._client,
+            BANK_STATEMENT_PROMPT,
+            markdown,
+            lambda payload: BankStatement.model_validate({"document_id": document_id, **payload}),
+        )
+
+    def _extract_gst_return(self, markdown: str, document_id: str) -> GSTReturn:
+        return _chat_with_retry(
+            self._settings,
+            self._client,
+            GST_RETURN_PROMPT,
+            markdown,
+            lambda payload: GSTReturn.model_validate({"document_id": document_id, **payload}),
+        )
+
+    def _extract_tds_form(self, markdown: str, document_id: str) -> TDSForm:
+        return _chat_with_retry(
+            self._settings,
+            self._client,
+            TDS_FORM_PROMPT,
+            markdown,
+            lambda payload: TDSForm.model_validate({"document_id": document_id, **payload}),
+        )
+
+    def _extract_investment_proof(self, markdown: str, document_id: str) -> InvestmentProof:
+        return _chat_with_retry(
+            self._settings,
+            self._client,
+            INVESTMENT_PROOF_PROMPT,
+            markdown,
+            lambda payload: InvestmentProof.model_validate({"document_id": document_id, **payload}),
         )

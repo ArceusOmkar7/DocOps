@@ -36,6 +36,9 @@ class Client(Base, UUIDPrimaryKeyMixin, TimestampMixin):
     organization: Mapped["Organization"] = relationship(  # noqa: F821
         back_populates="clients",
     )
+    members: Mapped[list["ClientMember"]] = relationship(  # noqa: F821
+        back_populates="client", lazy="selectin",
+    )
     documents: Mapped[list["Document"]] = relationship(  # noqa: F821
         back_populates="client", lazy="selectin",
     )

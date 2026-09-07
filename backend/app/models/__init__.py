@@ -1,6 +1,7 @@
 """SQLAlchemy models package — re-exports all models for Alembic discovery."""
 
 from .client import Client
+from .client_member import ClientMember
 from .document import Document
 from .enums import (
     ClientStatus,
@@ -16,6 +17,7 @@ from .workflow_document_requirement import WorkflowDocumentRequirement
 
 __all__ = [
     "Client",
+    "ClientMember",
     "ClientStatus",
     "Document",
     "DocumentStatus",
