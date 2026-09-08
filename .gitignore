@@ -2,3 +2,6 @@
 memory-bank.md
 
 .agents
+
+# Graphify cache
+graphify-out/cache/

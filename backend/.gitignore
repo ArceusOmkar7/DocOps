@@ -179,4 +179,9 @@ pyrightconfig.json
 # Generated application data (uploads + OCR results)
 data/
 
+# Generated test fixture PDFs
+tests/fixtures/pdfs/*.pdf
+tests/fixtures/pdfs/*/*.pdf
+!tests/fixtures/pdfs/manifest.json
+
 # End of https://www.toptal.com/developers/gitignore/api/python

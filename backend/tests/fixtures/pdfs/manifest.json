@@ -1,0 +1,318 @@
+{
+  "dataset_name": "Indian Accounting Documents Synthetic Dataset",
+  "version": "1.0",
+  "total_documents": 22,
+  "breakdown": {
+    "clean": 11,
+    "scanned_good": 5,
+    "scanned_poor": 4,
+    "edge_cases": 2
+  },
+  "documents": [
+    {
+      "filename": "clean/invoice_rajput_rs0234.pdf",
+      "category_folder": "clean",
+      "expected_classification": "invoice",
+      "ground_truth": {
+        "invoice_number": "RS/2026-27/0234",
+        "date": "2026-08-14",
+        "seller_name": "Rajput Steelworks Private Limited",
+        "seller_gstin": "24AABCR5678Q1ZP",
+        "buyer_name": "Kapoor & Shah Associates (Ahmedabad Branch)",
+        "buyer_gstin": "24AABFK9234P1ZS",
+        "subtotal": 100000.0,
+        "cgst": 9000.0,
+        "sgst": 9000.0,
+        "igst": 0.0,
+        "total": 118000.0,
+        "tax_type": "intra_state"
+      }
+    },
+    {
+      "filename": "clean/invoice_rajput_rs0235.pdf",
+      "category_folder": "clean",
+      "expected_classification": "invoice",
+      "ground_truth": {
+        "invoice_number": "RS/2026-27/0235",
+        "date": "2026-08-18",
+        "seller_name": "Rajput Steelworks Private Limited",
+        "seller_gstin": "24AABCR5678Q1ZP",
+        "buyer_name": "Codeify Technologies LLP",
+        "buyer_gstin": "27AAGFC4321N1ZT",
+        "subtotal": 200600.0,
+        "cgst": 0.0,
+        "sgst": 0.0,
+        "igst": 36108.0,
+        "total": 236708.0,
+        "tax_type": "inter_state"
+      }
+    },
+    {
+      "filename": "clean/invoice_codeify_ct0189.pdf",
+      "category_folder": "clean",
+      "expected_classification": "invoice",
+      "ground_truth": {
+        "invoice_number": "CT/2026-27/0189",
+        "date": "2026-08-22",
+        "seller_name": "Codeify Technologies LLP",
+        "seller_gstin": "27AAGFC4321N1ZT",
+        "buyer_name": "Apex Global Logistics Solutions Private Limited",
+        "buyer_gstin": "29AAACA1234F1ZU",
+        "subtotal": 750000.0,
+        "cgst": 0.0,
+        "sgst": 0.0,
+        "igst": 135000.0,
+        "total": 885000.0,
+        "tax_type": "inter_state"
+      }
+    },
+    {
+      "filename": "clean/bank_stmt_rajput_aug2026.pdf",
+      "category_folder": "clean",
+      "expected_classification": "bank_statement",
+      "ground_truth": {
+        "bank_name": "State Bank of India",
+        "account_number": "10987654321",
+        "account_holder": "Rajput Steelworks Private Limited",
+        "statement_period": "01/08/2026 to 31/08/2026",
+        "opening_balance": 1450230.5,
+        "total_debits": 3538520.0,
+        "total_credits": 3153928.0,
+        "closing_balance": 1065638.5,
+        "transaction_count": 35,
+        "reconciled": true
+      }
+    },
+    {
+      "filename": "clean/bank_stmt_codeify_aug2026.pdf",
+      "category_folder": "clean",
+      "expected_classification": "bank_statement",
+      "ground_truth": {
+        "bank_name": "Axis Bank",
+        "account_number": "9876501234",
+        "account_holder": "Codeify Technologies LLP",
+        "statement_period": "01/08/2026 to 31/08/2026",
+        "opening_balance": 2840650.0,
+        "total_debits": 3276243.0,
+        "total_credits": 3742480.0,
+        "closing_balance": 3306887.0,
+        "transaction_count": 28,
+        "reconciled": true
+      }
+    },
+    {
+      "filename": "clean/gstr3b_rajput_aug2026.pdf",
+      "category_folder": "clean",
+      "expected_classification": "gst_return",
+      "ground_truth": {
+        "form_type": "GSTR-3B",
+        "return_period": "August 2026",
+        "gstin": "24AABCR5678Q1ZP",
+        "legal_name": "Rajput Steelworks Private Limited",
+        "taxable_turnover": 2240000.0,
+        "outward_igst": 0.0,
+        "outward_cgst": 201600.0,
+        "outward_sgst": 201600.0,
+        "itc_available_igst": 18000.0,
+        "itc_available_cgst": 81000.0,
+        "itc_available_sgst": 81000.0,
+        "itc_available_total": 180000.0,
+        "itc_reversed_igst": 0.0,
+        "itc_reversed_cgst": 2500.0,
+        "itc_reversed_sgst": 2500.0,
+        "itc_reversed_total": 5000.0,
+        "net_itc_igst": 18000.0,
+        "net_itc_cgst": 78500.0,
+        "net_itc_sgst": 78500.0,
+        "net_itc_total": 175000.0,
+        "math_verified": true
+      }
+    },
+    {
+      "filename": "clean/gstr3b_codeify_aug2026.pdf",
+      "category_folder": "clean",
+      "expected_classification": "gst_return",
+      "ground_truth": {
+        "form_type": "GSTR-3B",
+        "return_period": "August 2026",
+        "gstin": "27AAGFC4321N1ZT",
+        "legal_name": "Codeify Technologies LLP",
+        "taxable_turnover": 3870000.0,
+        "outward_igst": 552600.0,
+        "outward_cgst": 0.0,
+        "outward_sgst": 0.0,
+        "itc_available_igst": 84200.0,
+        "itc_available_cgst": 26400.0,
+        "itc_available_sgst": 26400.0,
+        "itc_available_total": 137000.0,
+        "itc_reversed_igst": 4200.0,
+        "itc_reversed_cgst": 0.0,
+        "itc_reversed_sgst": 0.0,
+        "itc_reversed_total": 4200.0,
+        "net_itc_igst": 80000.0,
+        "net_itc_cgst": 26400.0,
+        "net_itc_sgst": 26400.0,
+        "net_itc_total": 132800.0,
+        "math_verified": true
+      }
+    },
+    {
+      "filename": "clean/form16_arjun_fy2526.pdf",
+      "category_folder": "clean",
+      "expected_classification": "tds_form",
+      "ground_truth": {
+        "form_type": "Form 16",
+        "employee_name": "Arjun Khanna",
+        "employee_pan": "AKQPK7890G",
+        "employer_name": "Codeify Technologies LLP",
+        "employer_tan": "PNEC12345D",
+        "employer_pan": "AAGFC4321N",
+        "assessment_year": "2026-27",
+        "financial_year": "2025-26",
+        "gross_salary": 1440000.0,
+        "total_deductions_chapter_via": 175000.0,
+        "taxable_income": 1092500.0,
+        "total_tax_deducted": 186000.0,
+        "total_tax_deposited": 186000.0,
+        "reconciled": true
+      }
+    },
+    {
+      "filename": "clean/form26as_arjun_ay2627.pdf",
+      "category_folder": "clean",
+      "expected_classification": "tds_form",
+      "ground_truth": {
+        "form_type": "Form 26AS",
+        "assessee_name": "Arjun Khanna",
+        "assessee_pan": "AKQPK7890G",
+        "assessment_year": "2026-27",
+        "financial_year": "2025-26",
+        "deductor_name": "Codeify Technologies LLP",
+        "deductor_tan": "PNEC12345D",
+        "total_amount_paid": 1440000.0,
+        "total_tds_deducted": 186000.0,
+        "total_tds_deposited": 186000.0,
+        "cross_referenced_with_form16": true
+      }
+    },
+    {
+      "filename": "clean/lic_receipt_arjun_80c.pdf",
+      "category_folder": "clean",
+      "expected_classification": "investment_proof",
+      "ground_truth": {
+        "institution": "Life Insurance Corporation of India",
+        "policy_number": "894561230",
+        "policyholder": "Arjun Khanna",
+        "pan": "AKQPK7890G",
+        "financial_year": "2025-26",
+        "total_premium_paid": 48000.0,
+        "eligible_80c_amount": 48000.0
+      }
+    },
+    {
+      "filename": "clean/ppf_statement_arjun_80c.pdf",
+      "category_folder": "clean",
+      "expected_classification": "investment_proof",
+      "ground_truth": {
+        "bank_name": "State Bank of India",
+        "ppf_account_number": "30123456789",
+        "subscriber_name": "Arjun Khanna",
+        "pan": "AKQPK7890G",
+        "financial_year": "2025-26",
+        "deposits_in_fy": 102000.0,
+        "interest_credited": 35445.0,
+        "closing_balance": 552845.0,
+        "eligible_80c_amount": 102000.0
+      }
+    },
+    {
+      "filename": "scanned_good/invoice_rajput_rs0234_scan.pdf",
+      "category_folder": "scanned_good",
+      "source_pdf": "clean/invoice_rajput_rs0234.pdf",
+      "expected_classification": "invoice",
+      "degradation": "200 DPI flatbed, +0.5 deg rotation, sigma=4 noise, q=80"
+    },
+    {
+      "filename": "scanned_good/bank_stmt_rajput_scan.pdf",
+      "category_folder": "scanned_good",
+      "source_pdf": "clean/bank_stmt_rajput_aug2026.pdf (page 1)",
+      "expected_classification": "bank_statement",
+      "degradation": "200 DPI, -0.4 deg rotation, grey unbleached paper tint"
+    },
+    {
+      "filename": "scanned_good/gstr3b_rajput_scan.pdf",
+      "category_folder": "scanned_good",
+      "source_pdf": "clean/gstr3b_rajput_aug2026.pdf",
+      "expected_classification": "gst_return",
+      "degradation": "200 DPI, +0.3 deg rotation, FILED rubber stamp, sigma=5 noise"
+    },
+    {
+      "filename": "scanned_good/form16_arjun_scan.pdf",
+      "category_folder": "scanned_good",
+      "source_pdf": "clean/form16_arjun_fy2526.pdf",
+      "expected_classification": "tds_form",
+      "degradation": "200 DPI ADF feeder skew +0.7 deg, 2 pages, q=82"
+    },
+    {
+      "filename": "scanned_good/lic_receipt_arjun_scan.pdf",
+      "category_folder": "scanned_good",
+      "source_pdf": "clean/lic_receipt_arjun_80c.pdf",
+      "expected_classification": "investment_proof",
+      "degradation": "200 DPI, fold crease line artifact across midpoint"
+    },
+    {
+      "filename": "scanned_poor/invoice_codeify_ct0189_mobile.pdf",
+      "category_folder": "scanned_poor",
+      "source_pdf": "clean/invoice_codeify_ct0189.pdf (page 1)",
+      "expected_classification": "invoice",
+      "degradation": "150 DPI mobile photo, -2.8 deg rotation, perspective keystoning, sigma=16 noise, brightened"
+    },
+    {
+      "filename": "scanned_poor/bank_stmt_codeify_mobile.pdf",
+      "category_folder": "scanned_poor",
+      "source_pdf": "clean/bank_stmt_codeify_aug2026.pdf (page 2)",
+      "expected_classification": "bank_statement",
+      "degradation": "150 DPI mobile capture with hand/room shadow gradient on left edge, +1.8 deg rotation"
+    },
+    {
+      "filename": "scanned_poor/form26as_arjun_mobile.pdf",
+      "category_folder": "scanned_poor",
+      "source_pdf": "clean/form26as_arjun_ay2627.pdf (page 1)",
+      "expected_classification": "tds_form",
+      "degradation": "150 DPI mobile photo, washed out / low contrast, +3.5 deg tilt, high noise"
+    },
+    {
+      "filename": "scanned_poor/ppf_statement_arjun_mobile.pdf",
+      "category_folder": "scanned_poor",
+      "source_pdf": "clean/ppf_statement_arjun_80c.pdf",
+      "expected_classification": "investment_proof",
+      "degradation": "150 DPI slightly out-of-focus camera capture (1.2px blur), -2.2 deg tilt, noise"
+    },
+    {
+      "filename": "edge_cases/payslip_arjun_aug2026.pdf",
+      "category_folder": "edge_cases",
+      "expected_classification": "unknown",
+      "ground_truth": {
+        "document_type": "payslip",
+        "expected_classification": "unknown",
+        "employee_name": "Arjun Khanna",
+        "period": "August 2026",
+        "gross_salary": 120000.0,
+        "total_deductions": 175000.0,
+        "net_pay": 102500.0
+      },
+      "notes": "Legitimate salary payslip; expected classification is 'unknown' as payslip is not a primary tax/statutory doc type."
+    },
+    {
+      "filename": "edge_cases/blank_page.pdf",
+      "category_folder": "edge_cases",
+      "expected_classification": "unknown",
+      "ground_truth": {
+        "document_type": "blank_page",
+        "expected_classification": "unknown",
+        "page_count": 1
+      },
+      "notes": "Blank A4 page to test pipeline robustness on empty/near-empty OCR returns."
+    }
+  ]
+}
