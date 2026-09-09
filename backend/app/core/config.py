@@ -57,8 +57,13 @@ class Settings(BaseSettings):
     llm_model: str = "gpt-4o-mini"
     llm_max_retries: int = 3
     llm_timeout_seconds: float = 60.0
-    llm_max_tokens: int = 2000
+    llm_max_tokens: int = 4000
     llm_use_json_mode: bool = True
+
+    # Fallback LLM extraction provider (e.g. Groq fallback when primary provider fails)
+    llm_fallback_api_key: str = ""
+    llm_fallback_base_url: str = ""
+    llm_fallback_model: str = ""
 
     # Classification runs BEFORE extraction as its own cheap call. Empty model
     # falls back to LLM_MODEL; a high min_confidence forces "unknown" when unsure.

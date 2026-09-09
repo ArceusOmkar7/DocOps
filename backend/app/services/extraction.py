@@ -198,20 +198,21 @@ class LLMClient:
     def __init__(self, settings: Settings):
         self._settings = settings
 
-    def chat_json(
+    def _post_chat(
         self,
+        base_url: str,
+        api_key: str,
+        model: str,
         messages: list[dict[str, str]],
-        *,
-        model: str | None = None,
-        max_tokens: int | None = None,
+        max_tokens: int | None,
     ) -> str:
         s = self._settings
-        url = f"{s.llm_base_url.rstrip('/')}/chat/completions"
+        url = f"{base_url.rstrip('/')}/chat/completions"
         headers = {}
-        if s.llm_api_key:
-            headers["Authorization"] = f"Bearer {s.llm_api_key}"
+        if api_key:
+            headers["Authorization"] = f"Bearer {api_key}"
         payload: dict[str, Any] = {
-            "model": model or s.llm_model,
+            "model": model,
             "messages": messages,
             "temperature": 0.0,
             "max_tokens": max_tokens or s.llm_max_tokens,
@@ -219,8 +220,7 @@ class LLMClient:
         if s.llm_use_json_mode:
             payload["response_format"] = {"type": "json_object"}
 
-        max_http_attempts = 6
-        data = None
+        max_http_attempts = 4
         for attempt in range(max_http_attempts):
             try:
                 with httpx.Client(timeout=s.llm_timeout_seconds) as client:
@@ -237,40 +237,75 @@ class LLMClient:
                         except Exception:
                             pass
                         logger.warning(
-                            "Rate limited (429) on LLM call. Backing off for %.2fs (attempt %d/%d)...",
-                            delay, attempt + 1, max_http_attempts
+                            "Rate limited (429) on %s. Backing off for %.2fs (attempt %d/%d)...",
+                            base_url, delay, attempt + 1, max_http_attempts
                         )
                         time.sleep(delay)
                         continue
                     elif response.status_code in (500, 502, 503, 504) and attempt < max_http_attempts - 1:
                         delay = 1.5 * (attempt + 1)
                         logger.warning(
-                            "Server error (%d) from LLM. Retrying in %.2fs (attempt %d/%d)...",
-                            response.status_code, delay, attempt + 1, max_http_attempts
+                            "Server error (%d) from %s. Retrying in %.2fs...",
+                            response.status_code, base_url, delay
                         )
                         time.sleep(delay)
                         continue
                     response.raise_for_status()
                     data = response.json()
-                    break
+                    content = data["choices"][0]["message"]["content"]
+                    if not isinstance(content, str) or not content.strip():
+                        raise JSONResponseError("LLM returned empty content")
+                    return content
             except (httpx.TimeoutException, httpx.NetworkError) as exc:
                 if attempt < max_http_attempts - 1:
                     delay = 2.0 * (attempt + 1)
-                    logger.warning("Network/timeout error (%s). Retrying in %.2fs...", exc, delay)
                     time.sleep(delay)
                     continue
-                raise ExtractionError(f"LLM request network/timeout failure: {exc}") from exc
+                raise ExtractionError(f"Network error on {base_url}: {exc}") from exc
+            except httpx.HTTPStatusError as exc:
+                raise ExtractionError(
+                    f"HTTP {exc.response.status_code} on {base_url}: {exc.response.text[:200]}"
+                ) from exc
 
-        if data is None:
-            raise ExtractionError("LLM call failed after retries")
+        raise ExtractionError(f"LLM request to {base_url} exhausted retries")
 
+    def chat_json(
+        self,
+        messages: list[dict[str, str]],
+        *,
+        model: str | None = None,
+        max_tokens: int | None = None,
+    ) -> str:
+        s = self._settings
+        target_model = model or s.llm_model
         try:
-            content = data["choices"][0]["message"]["content"]
-        except (KeyError, IndexError, TypeError) as exc:
-            raise ExtractionError(f"Unexpected LLM response shape: {data}") from exc
-        if not isinstance(content, str) or not content.strip():
-            raise JSONResponseError("LLM returned empty content")
-        return content
+            return self._post_chat(
+                s.llm_base_url,
+                s.llm_api_key,
+                target_model,
+                messages,
+                max_tokens,
+            )
+        except Exception as primary_exc:
+            if s.llm_fallback_base_url and s.llm_fallback_api_key:
+                fallback_model = s.llm_fallback_model or target_model
+                logger.warning(
+                    "Primary LLM (%s on %s) failed (%s). Falling back to %s on %s...",
+                    target_model, s.llm_base_url, primary_exc, fallback_model, s.llm_fallback_base_url
+                )
+                try:
+                    return self._post_chat(
+                        s.llm_fallback_base_url,
+                        s.llm_fallback_api_key,
+                        fallback_model,
+                        messages,
+                        max_tokens,
+                    )
+                except Exception as fallback_exc:
+                    raise ExtractionError(
+                        f"Both primary ({primary_exc}) and fallback ({fallback_exc}) LLMs failed."
+                    ) from fallback_exc
+            raise
 
 
 def parse_llm_json(content: str) -> dict[str, Any]:
