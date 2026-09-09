@@ -102,10 +102,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       </div>
 
       <div className={styles.footer}>
-        <div className={styles.userAvatar}>AK</div>
+        <div className={styles.userAvatar}>OM</div>
         {!collapsed && (
           <div className={styles.userInfo}>
-            <span className={styles.userName}>Aditya Kulkarni</span>
+            <span className={styles.userName}>Omkar Mahindrakar</span>
             <span className={styles.userRole}>Administrator</span>
           </div>
         )}
