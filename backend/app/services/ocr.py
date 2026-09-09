@@ -173,7 +173,22 @@ def page_from_raw(raw: dict, page_index: int, markdown: str = "") -> OCRPage:
     text = plain_text_from_layout(raw)
     if not text and blocks:
         text = "\n\n".join(line_from_row(row) for row in group_into_rows(blocks))
-    markdown = markdown.strip() or text
+
+    clean_md = markdown.strip()
+    if clean_md and text:
+        header_snippets: list[str] = []
+        for block_line in text.split("\n\n"):
+            line_str = block_line.strip()
+            if not line_str:
+                continue
+            if line_str[:25].lower() in clean_md.lower():
+                break
+            header_snippets.append(line_str)
+        if header_snippets:
+            clean_md = "\n\n".join(header_snippets) + "\n\n" + clean_md
+        markdown = clean_md
+    else:
+        markdown = clean_md or text
 
     return OCRPage(
         page_index=page_index,

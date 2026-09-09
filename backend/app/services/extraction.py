@@ -17,8 +17,12 @@ back to the model (up to `llm_max_retries` attempts).
 from __future__ import annotations
 
 import json
+import logging
 import re
+import time
 from typing import Any, Callable
+
+logger = logging.getLogger(__name__)
 
 import httpx
 from pydantic import BaseModel, Field, ValidationError
@@ -214,10 +218,52 @@ class LLMClient:
         }
         if s.llm_use_json_mode:
             payload["response_format"] = {"type": "json_object"}
-        with httpx.Client(timeout=s.llm_timeout_seconds) as client:
-            response = client.post(url, headers=headers, json=payload)
-            response.raise_for_status()
-            data = response.json()
+
+        max_http_attempts = 6
+        data = None
+        for attempt in range(max_http_attempts):
+            try:
+                with httpx.Client(timeout=s.llm_timeout_seconds) as client:
+                    response = client.post(url, headers=headers, json=payload)
+                    if response.status_code == 429:
+                        retry_after = response.headers.get("retry-after")
+                        delay = float(retry_after) if retry_after else (2.0 ** attempt * 1.5)
+                        try:
+                            err_body = response.json()
+                            msg = err_body.get("error", {}).get("message", "")
+                            m = re.search(r"try again in ([0-9.]+)\s*s", msg)
+                            if m:
+                                delay = max(delay, float(m.group(1)) + 1.0)
+                        except Exception:
+                            pass
+                        logger.warning(
+                            "Rate limited (429) on LLM call. Backing off for %.2fs (attempt %d/%d)...",
+                            delay, attempt + 1, max_http_attempts
+                        )
+                        time.sleep(delay)
+                        continue
+                    elif response.status_code in (500, 502, 503, 504) and attempt < max_http_attempts - 1:
+                        delay = 1.5 * (attempt + 1)
+                        logger.warning(
+                            "Server error (%d) from LLM. Retrying in %.2fs (attempt %d/%d)...",
+                            response.status_code, delay, attempt + 1, max_http_attempts
+                        )
+                        time.sleep(delay)
+                        continue
+                    response.raise_for_status()
+                    data = response.json()
+                    break
+            except (httpx.TimeoutException, httpx.NetworkError) as exc:
+                if attempt < max_http_attempts - 1:
+                    delay = 2.0 * (attempt + 1)
+                    logger.warning("Network/timeout error (%s). Retrying in %.2fs...", exc, delay)
+                    time.sleep(delay)
+                    continue
+                raise ExtractionError(f"LLM request network/timeout failure: {exc}") from exc
+
+        if data is None:
+            raise ExtractionError("LLM call failed after retries")
+
         try:
             content = data["choices"][0]["message"]["content"]
         except (KeyError, IndexError, TypeError) as exc:
