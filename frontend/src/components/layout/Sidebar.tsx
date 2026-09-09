@@ -12,6 +12,7 @@ import {
   Layers,
   LayoutDashboard,
   Settings,
+  ShieldCheck,
   Users,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
@@ -34,7 +35,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
   const settingsNavItems = [
     { to: '/rules', label: 'Rules & Checklists', icon: CheckSquare },
     { to: '/doc-types', label: 'Document Types', icon: Layers },
-    { to: '/users', label: 'Users', icon: Users },
+    { to: '/users', label: 'Team & Roles', icon: Users },
     { to: '/integrations', label: 'Integrations', icon: FolderTree },
     { to: '/settings', label: 'Settings', icon: Settings },
   ];
@@ -44,24 +45,28 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
       <div className={styles.header}>
         {!collapsed && (
           <div className={styles.brand}>
-            <div className={styles.logoIcon}>
-              <Layers size={18} />
+            <div className={styles.logoMark}>
+              <ShieldCheck size={16} strokeWidth={2.2} />
             </div>
-            <span className={styles.brandName}>AI Docs Orchestrator</span>
+            <div className={styles.brandMeta}>
+              <span className={styles.brandName}>DocOps</span>
+              <span className={styles.brandSub}>Compliance Studio</span>
+            </div>
           </div>
         )}
         <button
           className={styles.toggleBtn}
           onClick={onToggle}
           title={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
+          aria-label={collapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
         >
-          {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+          {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>
       </div>
 
       <div className={styles.navSection}>
         <div className={styles.group}>
-          {!collapsed && <span className={styles.groupLabel}>MAIN</span>}
+          {!collapsed && <span className={styles.groupLabel}>OPERATIONS</span>}
           {mainNavItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -73,15 +78,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                 }
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className={styles.icon} />
-                {!collapsed && <span>{item.label}</span>}
+                <Icon size={16} strokeWidth={1.75} className={styles.icon} />
+                {!collapsed && <span className={styles.navLabel}>{item.label}</span>}
               </NavLink>
             );
           })}
         </div>
 
         <div className={styles.group}>
-          {!collapsed && <span className={styles.groupLabel}>SETTINGS</span>}
+          {!collapsed && <span className={styles.groupLabel}>GOVERNANCE</span>}
           {settingsNavItems.map((item) => {
             const Icon = item.icon;
             return (
@@ -93,8 +98,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
                 }
                 title={collapsed ? item.label : undefined}
               >
-                <Icon className={styles.icon} />
-                {!collapsed && <span>{item.label}</span>}
+                <Icon size={16} strokeWidth={1.75} className={styles.icon} />
+                {!collapsed && <span className={styles.navLabel}>{item.label}</span>}
               </NavLink>
             );
           })}
@@ -106,7 +111,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ collapsed, onToggle }) => {
         {!collapsed && (
           <div className={styles.userInfo}>
             <span className={styles.userName}>Omkar Mahindrakar</span>
-            <span className={styles.userRole}>Administrator</span>
+            <span className={styles.userRole}>Lead Auditor</span>
           </div>
         )}
       </div>

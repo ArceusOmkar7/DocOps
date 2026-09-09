@@ -1,90 +1,113 @@
 :root {
-  /* Primary Color Palette - Purple/Indigo like reference */
-  --primary-50: #f0f4ff;
-  --primary-100: #e0e9ff;
-  --primary-200: #c7d7fe;
-  --primary-500: #6366f1;
-  --primary-600: #4f46e5;
-  --primary-700: #4338ca;
-  --primary-800: #3730a3;
+  /* ── Neutral Stone Scale (Mercury / Stripe Financial Studio) ── */
+  --stone-25: #fcfcfb;
+  --stone-50: #fafaf9;
+  --stone-100: #f5f5f4;
+  --stone-150: #eeeeec;
+  --stone-200: #e7e7e4;
+  --stone-300: #d6d6d2;
+  --stone-400: #a8a8a2;
+  --stone-500: #73736c;
+  --stone-600: #52524d;
+  --stone-700: #3f3f3a;
+  --stone-800: #262624;
+  --stone-900: #171716;
+  --stone-950: #0d0d0c;
 
-  /* Sidebar - Light */
+  /* Primary Action Obsidian */
+  --action-primary: #171716;
+  --action-primary-hover: #262624;
+  --action-primary-active: #0d0d0c;
+  --action-primary-text: #ffffff;
+
+  /* Backward Compatibility Neutral Mappings */
+  --neutral-50: var(--stone-50);
+  --neutral-100: var(--stone-100);
+  --neutral-200: var(--stone-200);
+  --neutral-300: var(--stone-300);
+  --neutral-400: var(--stone-400);
+  --neutral-500: var(--stone-500);
+  --neutral-600: var(--stone-600);
+  --neutral-700: var(--stone-700);
+  --neutral-800: var(--stone-800);
+  --neutral-900: var(--stone-900);
+
+  /* Primary Palette Remapping to Architectural Slate/Obsidian */
+  --primary-50: #f8fafc;
+  --primary-100: #f1f5f9;
+  --primary-200: #e2e8f0;
+  --primary-500: #334155;
+  --primary-600: #1e293b;
+  --primary-700: #0f172a;
+  --primary-800: #020617;
+
+  /* Sidebar Tokens */
   --sidebar-bg: #ffffff;
-  --sidebar-border: #e2e8f0;
-  --sidebar-text: #475569;
-  --sidebar-text-active: #065f46;
-  --sidebar-active-bg: #ecfdf5;
-  --sidebar-icon-active: #10b981;
+  --sidebar-border: var(--stone-200);
+  --sidebar-text: var(--stone-600);
+  --sidebar-text-hover: var(--stone-900);
+  --sidebar-text-active: var(--stone-950);
+  --sidebar-active-bg: var(--stone-100);
+  --sidebar-icon-active: var(--stone-900);
 
-  /* Neutral Palette */
-  --neutral-50: #f8fafc;
-  --neutral-100: #f1f5f9;
-  --neutral-200: #e2e8f0;
-  --neutral-300: #cbd5e1;
-  --neutral-400: #94a3b8;
-  --neutral-500: #64748b;
-  --neutral-600: #475569;
-  --neutral-700: #334155;
-  --neutral-800: #1e293b;
-  --neutral-900: #0f172a;
+  /* Semantic Audit Colors - Restrained & Functional */
+  --color-success: #166534;
+  --color-success-bg: #f0fdf4;
+  --color-success-border: #bbf7d0;
+  --color-success-text: #166534;
 
-  /* Semantic Colors */
-  --color-success: #10b981;
-  --color-success-bg: #ecfdf5;
-  --color-success-border: #a7f3d0;
-  --color-success-text: #065f46;
+  --color-warning: #854d0e;
+  --color-warning-bg: #fefce8;
+  --color-warning-border: #fef08a;
+  --color-warning-text: #854d0e;
 
-  --color-warning: #f59e0b;
-  --color-warning-bg: #fffbeb;
-  --color-warning-border: #fcd34d;
-  --color-warning-text: #92400e;
-
-  --color-danger: #ef4444;
+  --color-danger: #991b1b;
   --color-danger-bg: #fef2f2;
-  --color-danger-border: #fca5a5;
+  --color-danger-border: #fecaca;
   --color-danger-text: #991b1b;
 
-  --color-info: #3b82f6;
-  --color-info-bg: #eff6ff;
-  --color-info-border: #93c5fd;
-  --color-info-text: #1e40af;
+  --color-info: #1e293b;
+  --color-info-bg: #f8fafc;
+  --color-info-border: #e2e8f0;
+  --color-info-text: #0f172a;
 
-  --color-purple: #8b5cf6;
-  --color-purple-bg: #f5f3ff;
-  --color-purple-border: #c4b5fd;
-  --color-purple-text: #5b21b6;
+  --color-purple: #3f3f3a;
+  --color-purple-bg: #f5f5f4;
+  --color-purple-border: #e7e7e4;
+  --color-purple-text: #262624;
 
   /* App Surfaces */
-  --bg-app: #f1f5f9;
+  --bg-app: #fafaf9;
   --bg-surface: #ffffff;
-  --bg-surface-hover: #f8fafc;
-  --border-subtle: #e2e8f0;
-  --border-strong: #cbd5e1;
+  --bg-surface-hover: #f5f5f4;
+  --border-subtle: #e7e7e4;
+  --border-strong: #d6d6d2;
 
   /* Typography */
-  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
 
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
+  --text-primary: #171716;
+  --text-secondary: #52524d;
+  --text-muted: #73736c;
 
-  /* Shadows */
+  /* Elevation (No colored fuzzy halos) */
   --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
-  --shadow-drawer: -8px 0 30px rgba(15, 23, 42, 0.12);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -2px rgba(0, 0, 0, 0.02);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.02);
+  --shadow-drawer: -8px 0 28px rgba(0, 0, 0, 0.07);
 
   /* Radius */
+  --radius-xs: 3px;
   --radius-sm: 5px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 16px;
+  --radius-md: 7px;
+  --radius-lg: 9px;
+  --radius-xl: 12px;
   --radius-full: 9999px;
 
   /* Transitions */
-  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: 350ms cubic-bezier(0.16, 1, 0.3, 1);
+  --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.16, 1, 0.3, 1);
 }

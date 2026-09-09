@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Eye, FileCheck, Filter, Loader2, Search, Upload } from 'lucide-react';
+import { Eye, FileCheck, FileText, Filter, Loader2, Plus, Search, Upload, X } from 'lucide-react';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { useDrawer } from '../contexts/DrawerContext';
 import { useDocuments } from '../hooks/useDocuments';
@@ -27,9 +27,12 @@ export const DocumentsPage: React.FC = () => {
     <div className={styles.container}>
       {/* Header row */}
       <div className={docStyles.pageHeader}>
-        <button className={styles.btnPrimary} onClick={() => setShowUploader(!showUploader)}>
-          <Upload size={13} />
-          {showUploader ? 'Close Uploader' : 'Upload Document'}
+        <button
+          className={styles.btnPrimary}
+          onClick={() => setShowUploader(!showUploader)}
+        >
+          {showUploader ? <X size={13} /> : <Upload size={13} />}
+          <span>{showUploader ? 'Close Intake Uploader' : 'Intake Document'}</span>
         </button>
       </div>
 
@@ -46,19 +49,19 @@ export const DocumentsPage: React.FC = () => {
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
             <h3 className={styles.cardTitle}>
-              All Extracted Documents ({filteredDocs.length})
+              Document Registry ({filteredDocs.length})
             </h3>
             <span className={styles.cardSubtitle}>
-              Live extracted document records stored in PostgreSQL & disk storage
+              Verified document repository, statutory extraction & audit records
             </span>
           </div>
           <div className={styles.headerActions}>
             <div className={styles.searchBox}>
-              <Search size={12} />
+              <Search size={12} className={styles.searchIcon} />
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Search by filename or type..."
+                placeholder="Filter by filename or type..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -68,32 +71,29 @@ export const DocumentsPage: React.FC = () => {
 
         <div className={styles.tableContainer}>
           {isLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-              <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 8px' }} />
-              <span>Fetching live documents...</span>
+            <div className={styles.emptyState}>
+              <Loader2 size={20} className="animate-spin" />
+              <span>Fetching document registry...</span>
             </div>
           ) : filteredDocs.length === 0 ? (
-            <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
-              <FileCheck size={36} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
-                No Documents Found
-              </div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>
+            <div className={styles.emptyState}>
+              <FileCheck size={28} />
+              <span>
                 {documents.length === 0
-                  ? 'Upload your first invoice or statement using the button above to begin automatic layout & LLM extraction.'
-                  : 'No documents match your search query.'}
-              </div>
+                  ? 'No documents in repository. Use "Intake Document" to parse your first file.'
+                  : 'No documents match your filter criteria.'}
+              </span>
             </div>
           ) : (
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Document Name</th>
-                  <th>Type</th>
-                  <th>OCR Confidence</th>
-                  <th>Status</th>
-                  <th>Uploaded</th>
-                  <th>Action</th>
+                  <th>File Name</th>
+                  <th>Classification</th>
+                  <th>Extraction Quality</th>
+                  <th>Compliance Status</th>
+                  <th>Intake Date</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -101,6 +101,7 @@ export const DocumentsPage: React.FC = () => {
                   const confPct = doc.ocr_confidence
                     ? `${(doc.ocr_confidence * 100).toFixed(1)}%`
                     : '98.5%';
+                  const numConf = parseFloat(confPct);
                   const uploadDate = doc.uploaded_at
                     ? new Date(doc.uploaded_at).toLocaleDateString('en-GB', {
                         day: '2-digit',
@@ -113,12 +114,12 @@ export const DocumentsPage: React.FC = () => {
                     <tr
                       key={doc.id}
                       onClick={() => openDrawer(doc.id, doc.ocr_result_id || undefined)}
-                      style={{ cursor: 'pointer' }}
+                      className={styles.tableRow}
                     >
                       <td>
                         <div className={docStyles.docName}>
                           <div className={docStyles.docIcon}>
-                            <FileCheck size={13} />
+                            <FileText size={13} strokeWidth={1.75} />
                           </div>
                           <span>{doc.source_filename}</span>
                         </div>
@@ -129,13 +130,14 @@ export const DocumentsPage: React.FC = () => {
                         </span>
                       </td>
                       <td>
-                        <span
-                          className={
-                            parseFloat(confPct) >= 90 ? docStyles.confHigh : docStyles.confLow
-                          }
-                        >
-                          {confPct}
-                        </span>
+                        <div className={docStyles.confCell}>
+                          <span
+                            className={`${docStyles.confDot} ${
+                              numConf >= 90 ? docStyles.confDotHigh : docStyles.confDotLow
+                            }`}
+                          />
+                          <span className={docStyles.confValue}>{confPct}</span>
+                        </div>
                       </td>
                       <td>
                         <StatusBadge
@@ -143,7 +145,7 @@ export const DocumentsPage: React.FC = () => {
                         />
                       </td>
                       <td className={styles.mutedCell}>{uploadDate}</td>
-                      <td>
+                      <td style={{ textAlign: 'right' }}>
                         <button
                           className={styles.actionBtn}
                           onClick={(e) => {

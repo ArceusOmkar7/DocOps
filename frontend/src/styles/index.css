@@ -2,7 +2,7 @@
 @import './animations.css';
 
 /* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -14,12 +14,13 @@ html, body {
   height: 100%;
   width: 100%;
   font-family: var(--font-family);
-  font-size: 14px;
-  line-height: 1.5;
+  font-size: 13px;
+  line-height: 1.45;
   background-color: var(--bg-app);
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overflow: hidden;
 }
 
@@ -49,10 +50,20 @@ input, select, textarea {
   font-size: inherit;
 }
 
-/* Custom Scrollbars */
+/* Tabular numbers for financial data */
+table, .tabular, code, pre {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: #262624;
+  color: #ffffff;
+}
+
+/* Custom Minimal Scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
@@ -60,12 +71,12 @@ input, select, textarea {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--neutral-300);
+  background: var(--stone-300);
   border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--neutral-400);
+  background: var(--stone-400);
 }
 
 /* Utility Helpers */

@@ -269,32 +269,17 @@ export const ClientsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  style={{
-                    padding: '8px 14px',
-                    borderRadius: 6,
-                    border: '1px solid #cbd5e1',
-                    background: '#fff',
-                    fontSize: 13,
-                    cursor: 'pointer',
-                  }}
+                  className={styles.actionBtn}
+                  style={{ padding: '7px 14px', fontSize: 12 }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createClientMutation.isPending}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: 6,
-                    border: 'none',
-                    background: '#059669',
-                    color: '#fff',
-                    fontWeight: 600,
-                    fontSize: 13,
-                    cursor: 'pointer',
-                  }}
+                  className={styles.btnPrimary}
                 >
-                  {createClientMutation.isPending ? 'Saving...' : 'Save Client'}
+                  {createClientMutation.isPending ? 'Registering...' : 'Register Client'}
                 </button>
               </div>
             </form>

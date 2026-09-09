@@ -1,74 +1,38 @@
 .card {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-  padding: 14px 16px 10px;
+  border: 1px solid var(--stone-200);
+  border-radius: var(--radius-md);
+  padding: 14px 16px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-  transition: box-shadow 150ms ease, transform 150ms ease;
-  overflow: hidden;
+  gap: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  transition: border-color var(--transition-fast);
 }
 
 .card:hover {
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-  transform: translateY(-1px);
+  border-color: var(--stone-300);
 }
 
-.topRow {
+.headerRow {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
 }
 
 .label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  color: #64748b;
-  line-height: 1.3;
-  /* Allow wrapping — never truncate */
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--stone-500);
+  line-height: 1.2;
 }
 
-.iconBox {
-  width: 32px;
-  height: 32px;
-  border-radius: 7px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.icon {
+  color: var(--stone-400);
   flex-shrink: 0;
-}
-
-.iconIndigo {
-  background-color: #e0e9ff;
-  color: #4338ca;
-}
-
-.iconBlue {
-  background-color: #dbeafe;
-  color: #1d4ed8;
-}
-
-.iconGreen {
-  background-color: #dcfce7;
-  color: #16a34a;
-}
-
-.iconAmber {
-  background-color: #fef9c3;
-  color: #b45309;
-}
-
-.iconRed {
-  background-color: #fee2e2;
-  color: #dc2626;
-}
-
-.iconPurple {
-  background-color: #ede9fe;
-  color: #7c3aed;
 }
 
 .valueRow {
@@ -77,48 +41,46 @@
 }
 
 .value {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 700;
-  color: #0f172a;
-  letter-spacing: -0.5px;
+  color: var(--stone-950);
+  letter-spacing: -0.03em;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-family);
+}
+
+.footerRow {
+  display: flex;
+  align-items: center;
+  margin-top: 2px;
 }
 
 .trend {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 7px;
-  border-radius: 4px;
+  font-size: 10.5px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: var(--radius-xs);
   display: inline-block;
-  width: fit-content;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  border: 1px solid transparent;
 }
 
 .trendPositive {
-  color: #15803d;
-  background-color: #dcfce7;
+  color: #166534;
+  background-color: #f0fdf4;
+  border-color: #dcfce7;
 }
 
 .trendNeutral {
-  color: #475569;
-  background-color: #f1f5f9;
+  color: var(--stone-600);
+  background-color: var(--stone-100);
+  border-color: var(--stone-200);
 }
 
 .trendWarning {
-  color: #b91c1c;
-  background-color: #fee2e2;
-}
-
-/* ── Sparkline ──────────────────────────────────────── */
-.sparklineWrap {
-  width: 100%;
-  height: 28px;
-  margin-top: 2px;
-  overflow: hidden;
-  border-radius: 4px;
-}
-
-.sparkline {
-  width: 100%;
-  height: 100%;
-  display: block;
+  color: #92400e;
+  background-color: #fffbeb;
+  border-color: #fef3c7;
 }

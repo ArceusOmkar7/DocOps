@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowRight, GitPullRequest, Loader2, Plus, Sparkles } from 'lucide-react';
+import { ArrowRight, CheckSquare, GitPullRequest, Layers, Loader2, Plus, X } from 'lucide-react';
 import { WorkflowTemplateSelector } from '../components/workflows/WorkflowTemplateSelector';
 import { WorkflowTimeline } from '../components/workflows/WorkflowTimeline';
 import { StatusBadge } from '../components/common/StatusBadge';
@@ -20,7 +20,7 @@ export const WorkflowsPage: React.FC = () => {
   const handleLaunchTemplate = async (tmpl: WorkflowTemplate) => {
     const targetClient = clients[0];
     if (!targetClient) {
-      alert('Please create at least one client before launching a workflow.');
+      alert('Please register at least one client before initializing a compliance workflow.');
       return;
     }
 
@@ -41,7 +41,7 @@ export const WorkflowsPage: React.FC = () => {
 
       setShowSelector(false);
     } catch (err: any) {
-      alert(`Failed to launch workflow: ${err.message}`);
+      alert(`Failed to initialize workflow: ${err.message}`);
     }
   };
 
@@ -49,9 +49,12 @@ export const WorkflowsPage: React.FC = () => {
     <div className={styles.container}>
       {/* Header row */}
       <div className={wfStyles.pageHeader}>
-        <button className={styles.btnPrimary} onClick={() => setShowSelector(!showSelector)}>
-          <Plus size={13} />
-          {showSelector ? 'Close Templates' : 'Launch New Workflow'}
+        <button
+          className={styles.btnPrimary}
+          onClick={() => setShowSelector(!showSelector)}
+        >
+          {showSelector ? <X size={13} /> : <Plus size={13} />}
+          <span>{showSelector ? 'Close Templates' : 'Initialize Workflow'}</span>
         </button>
       </div>
 
@@ -61,12 +64,15 @@ export const WorkflowsPage: React.FC = () => {
           <div className={styles.cardHeader}>
             <div className={styles.titleArea}>
               <h3 className={styles.cardTitle} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <Sparkles size={15} style={{ color: '#4f46e5' }} />
-                Select a Prebuilt Workflow Template
+                <CheckSquare size={15} className={styles.searchIcon} />
+                <span>Statutory Compliance Workflow Templates</span>
               </h3>
+              <span className={styles.cardSubtitle}>
+                Select an audited template to orchestrate client document collection and filing checks
+              </span>
             </div>
           </div>
-          <div style={{ padding: 18 }}>
+          <div style={{ padding: 16 }}>
             <WorkflowTemplateSelector onSelectTemplate={handleLaunchTemplate} />
           </div>
         </div>
@@ -76,27 +82,22 @@ export const WorkflowsPage: React.FC = () => {
       <div className={styles.cardSection}>
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
-            <h3 className={styles.cardTitle}>Active Client Workflows ({workflows.length})</h3>
+            <h3 className={styles.cardTitle}>Active Compliance Workflows ({workflows.length})</h3>
             <span className={styles.cardSubtitle}>
-              Live client document checklists & automated status progression stored in PostgreSQL
+              Client document checklists and statutory progression pipeline
             </span>
           </div>
         </div>
 
         {isLoading ? (
-          <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-            <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 8px' }} />
-            <span>Fetching workflows...</span>
+          <div className={styles.emptyState}>
+            <Loader2 size={20} className="animate-spin" />
+            <span>Fetching compliance workflows...</span>
           </div>
         ) : workflows.length === 0 ? (
-          <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
-            <GitPullRequest size={36} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-            <div style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
-              No Active Workflows
-            </div>
-            <div style={{ fontSize: 13, marginTop: 4 }}>
-              Click "Launch New Workflow" above to create an automated compliance checklist for your clients.
-            </div>
+          <div className={styles.emptyState}>
+            <GitPullRequest size={28} />
+            <span>No active workflows. Initialize a template above to track client filings.</span>
           </div>
         ) : (
           <div className={wfStyles.workflowList}>
@@ -109,7 +110,7 @@ export const WorkflowsPage: React.FC = () => {
                   <div className={wfStyles.wfTop}>
                     <div className={wfStyles.wfLeft}>
                       <div className={wfStyles.wfIcon}>
-                        <GitPullRequest size={16} />
+                        <GitPullRequest size={15} strokeWidth={1.75} />
                       </div>
                       <div className={wfStyles.wfInfo}>
                         <h4 className={wfStyles.wfName}>{wf.name}</h4>
@@ -126,11 +127,11 @@ export const WorkflowsPage: React.FC = () => {
 
                   <div className={wfStyles.wfBottom}>
                     <span className={wfStyles.wfProgress}>
-                      Checklist Requirements: {reqs.length} Mandatory Document Items
+                      Checklist Requirements: {reqs.length} Statutory Document Items
                     </span>
                     <button className={styles.actionBtn}>
-                      <span>Inspect Checklist ({reqs.length} items)</span>
-                      <ArrowRight size={12} />
+                      <span>Inspect Checklist ({reqs.length})</span>
+                      <ArrowRight size={11} />
                     </button>
                   </div>
                 </div>

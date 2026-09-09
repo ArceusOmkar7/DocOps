@@ -97,13 +97,13 @@
 }
 
 .tab:hover {
-  color: #334155;
+  color: var(--stone-900);
 }
 
 .tab.active {
-  color: #4f46e5;
+  color: var(--stone-950);
   font-weight: 600;
-  border-bottom-color: #4f46e5;
+  border-bottom-color: var(--stone-900);
 }
 
 /* ── Body ────────────────────────────────────────────── */
@@ -116,7 +116,7 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  background-color: #f8fafc;
+  background-color: var(--stone-50);
 }
 
 /* Custom scrollbar for drawer body */

@@ -1,22 +1,20 @@
 import React, { useState } from 'react';
 import {
   AlertTriangle,
-  BarChart3,
+  ArrowUpRight,
   CheckCircle2,
+  Clock,
   Eye,
   FileCheck,
   FileText,
   FileWarning,
   Loader2,
-  Plus,
-  RefreshCw,
   Search,
-  Send,
+  ShieldAlert,
   Users,
 } from 'lucide-react';
 import { StatCard } from '../components/common/StatCard';
 import { StatusBadge } from '../components/common/StatusBadge';
-import { ProgressBar } from '../components/common/ProgressBar';
 import { useDrawer } from '../contexts/DrawerContext';
 import { useClients } from '../hooks/useClients';
 import { useDocuments } from '../hooks/useDocuments';
@@ -52,46 +50,36 @@ export const DashboardPage: React.FC = () => {
       {/* Stat Cards Grid */}
       <div className={styles.statsGrid}>
         <StatCard
-          label="Total Clients"
+          label="Client Accounts"
           value={totalClients}
           trend={`${totalClients} active`}
           icon={Users}
-          colorTheme="indigo"
-          sparkline={[1, 2, 2, 3, 3, 3, 3, totalClients]}
         />
         <StatCard
-          label="Documents Processed"
+          label="Documents Ingested"
           value={documentsProcessed}
           trend={`${documentsProcessed} total`}
           icon={FileText}
-          colorTheme="blue"
-          sparkline={[0, 1, 2, 3, 4, documentsProcessed]}
         />
         <StatCard
-          label="Ready for Filing"
+          label="Filing Ready"
           value={readyForFiling}
-          trend={documentsProcessed > 0 ? `${((readyForFiling / documentsProcessed) * 100).toFixed(0)}% valid` : '0%'}
+          trend={documentsProcessed > 0 ? `${((readyForFiling / documentsProcessed) * 100).toFixed(0)}% validated` : '0%'}
           icon={FileCheck}
-          colorTheme="green"
-          sparkline={[0, 1, 1, 2, readyForFiling]}
         />
         <StatCard
-          label="Missing Documents"
+          label="Action Required"
           value={missingDocuments}
-          trend={missingDocuments > 0 ? `${missingDocuments} action req` : '0 pending'}
-          trendType="warning"
+          trend={missingDocuments > 0 ? `${missingDocuments} exceptions` : '0 backlog'}
+          trendType={missingDocuments > 0 ? 'warning' : 'positive'}
           icon={FileWarning}
-          colorTheme="red"
-          sparkline={[0, 0, missingDocuments]}
         />
         <StatCard
-          label="Need Review"
+          label="Verification Needed"
           value={needReview}
-          trend={needReview > 0 ? `${needReview} flagged` : 'All clear'}
-          trendType="warning"
+          trend={needReview > 0 ? `${needReview} flagged for review` : 'All verified'}
+          trendType={needReview > 0 ? 'warning' : 'positive'}
           icon={AlertTriangle}
-          colorTheme="amber"
-          sparkline={[0, 1, needReview]}
         />
       </div>
 
@@ -99,19 +87,19 @@ export const DashboardPage: React.FC = () => {
       <div className={styles.cardSection}>
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
-            <h3 className={styles.cardTitle}>Clients</h3>
+            <h3 className={styles.cardTitle}>Client Filing Status</h3>
             <span className={styles.cardSubtitle}>
-              Live client records and filing compliance state
+              Active client records and statutory compliance posture
             </span>
           </div>
 
           <div className={styles.headerActions}>
             <div className={styles.searchBox}>
-              <Search size={13} />
+              <Search size={13} className={styles.searchIcon} />
               <input
                 type="text"
                 className={styles.searchInput}
-                placeholder="Search clients..."
+                placeholder="Filter clients or GSTIN..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -122,10 +110,10 @@ export const DashboardPage: React.FC = () => {
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
             >
-              <option value="ALL">All Status</option>
+              <option value="ALL">All Statuses</option>
               <option value="on_track">On Track</option>
               <option value="awaiting_documents">Awaiting Documents</option>
-              <option value="needs_review">Need Review</option>
+              <option value="needs_review">Needs Review</option>
               <option value="action_required">Action Required</option>
             </select>
           </div>
@@ -133,25 +121,25 @@ export const DashboardPage: React.FC = () => {
 
         <div className={styles.tableContainer}>
           {loadingClients ? (
-            <div style={{ padding: 36, textAlign: 'center', color: '#64748b' }}>
-              <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 8px' }} />
-              <span>Loading client state...</span>
+            <div className={styles.emptyState}>
+              <Loader2 size={20} className="animate-spin" />
+              <span>Fetching client records...</span>
             </div>
           ) : filteredClients.length === 0 ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-              <Users size={32} style={{ margin: '0 auto 8px', opacity: 0.5 }} />
-              <div>No client records found.</div>
+            <div className={styles.emptyState}>
+              <Users size={28} />
+              <span>No client accounts match your criteria.</span>
             </div>
           ) : (
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>Client</th>
-                  <th>Status</th>
-                  <th>Contact Person</th>
+                  <th>Client Account</th>
+                  <th>Compliance Status</th>
+                  <th>Primary Contact</th>
                   <th>Email</th>
                   <th>Phone</th>
-                  <th>Action</th>
+                  <th style={{ textAlign: 'right' }}>Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -164,16 +152,18 @@ export const DashboardPage: React.FC = () => {
                     .toUpperCase();
 
                   return (
-                    <tr key={client.id} style={{ cursor: 'pointer' }}>
+                    <tr
+                      key={client.id}
+                      onClick={() => openDrawer()}
+                      className={styles.tableRow}
+                    >
                       <td>
                         <div className={styles.clientCell}>
-                          <div className={`${styles.avatar} ${styles.avatarIndigo}`}>
-                            {initials}
-                          </div>
+                          <div className={styles.avatar}>{initials}</div>
                           <div className={styles.clientInfo}>
                             <span className={styles.clientName}>{client.name}</span>
                             <span className={styles.clientGstin}>
-                              GSTN: {client.tax_id || 'N/A'}
+                              GSTIN: {client.tax_id || 'NOT_REGISTERED'}
                             </span>
                           </div>
                         </div>
@@ -181,10 +171,10 @@ export const DashboardPage: React.FC = () => {
                       <td>
                         <StatusBadge status={client.status || 'on_track'} />
                       </td>
-                      <td style={{ color: '#475569' }}>{client.contact_person || 'N/A'}</td>
-                      <td className={styles.mutedCell}>{client.email || 'N/A'}</td>
-                      <td className={styles.mutedCell}>{client.phone || 'N/A'}</td>
-                      <td>
+                      <td className={styles.secondaryText}>{client.contact_person || '—'}</td>
+                      <td className={styles.mutedCell}>{client.email || '—'}</td>
+                      <td className={styles.mutedCell}>{client.phone || '—'}</td>
+                      <td style={{ textAlign: 'right' }}>
                         <button
                           className={styles.actionBtn}
                           onClick={(e) => {
@@ -192,7 +182,7 @@ export const DashboardPage: React.FC = () => {
                             openDrawer();
                           }}
                         >
-                          <Eye size={11} />
+                          <Eye size={12} />
                           <span>Inspect</span>
                         </button>
                       </td>
@@ -206,26 +196,27 @@ export const DashboardPage: React.FC = () => {
 
         <div className={styles.tableFooter}>
           <span>
-            Showing {filteredClients.length} of {totalClients} clients
+            Displaying {filteredClients.length} of {totalClients} client accounts
           </span>
         </div>
       </div>
 
-      {/* Recent Activity Stream */}
+      {/* Operational Activity Stream */}
       <div className={styles.cardSection}>
         <div className={styles.cardHeader}>
           <div className={styles.titleArea}>
-            <h3 className={styles.cardTitle}>Recent Activity</h3>
+            <h3 className={styles.cardTitle}>Operational Activity & Ingestion Stream</h3>
             <span className={styles.cardSubtitle}>
-              Real-time OCR extraction & LLM reasoning event stream
+              Audit trail of document extraction, classification, and statutory checks
             </span>
           </div>
         </div>
 
         <div className={styles.activityFeed}>
           {documents.length === 0 ? (
-            <div style={{ padding: 24, color: '#64748b', fontSize: 13 }}>
-              No recent activity events yet. Upload a document to start stream.
+            <div className={styles.emptyState}>
+              <Clock size={24} />
+              <span>No document activity recorded in current session.</span>
             </div>
           ) : (
             documents.slice(0, 5).map((doc) => (
@@ -234,27 +225,49 @@ export const DashboardPage: React.FC = () => {
                 className={styles.activityItem}
                 onClick={() => openDrawer(doc.id, doc.ocr_result_id || undefined)}
               >
-                <div className={`${styles.actIcon} ${doc.needs_human_review ? styles.warning : styles.success}`}>
-                  {doc.needs_human_review ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
-                </div>
-                <div className={styles.actContent}>
-                  <span className={styles.actMessage}>
-                    {doc.needs_human_review
-                      ? `Extraction flagged for review: ${doc.source_filename}`
-                      : `Successfully processed ${doc.source_filename}`}
-                  </span>
-                  <span className={styles.actMeta}>
-                    {doc.document_type ? doc.document_type.toUpperCase() : 'DOCUMENT'} •{' '}
-                    {doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleTimeString() : 'Recently'}
-                  </span>
-                </div>
-                <span
-                  className={`${styles.actBadge} ${
-                    doc.needs_human_review ? styles.badgeWarning : styles.badgeSuccess
+                <div
+                  className={`${styles.actIcon} ${
+                    doc.needs_human_review ? styles.actIconWarning : styles.actIconSuccess
                   }`}
                 >
-                  {doc.needs_human_review ? 'Needs Review' : 'Validated'}
-                </span>
+                  {doc.needs_human_review ? (
+                    <ShieldAlert size={14} />
+                  ) : (
+                    <CheckCircle2 size={14} />
+                  )}
+                </div>
+                <div className={styles.actContent}>
+                  <div className={styles.actMessage}>
+                    {doc.needs_human_review ? (
+                      <span>
+                        Flagged for human signoff:{' '}
+                        <strong>{doc.source_filename}</strong>
+                      </span>
+                    ) : (
+                      <span>
+                        Verified and parsed:{' '}
+                        <strong>{doc.source_filename}</strong>
+                      </span>
+                    )}
+                  </div>
+                  <div className={styles.actMeta}>
+                    <span className={styles.docTypeTag}>
+                      {doc.document_type ? doc.document_type.toUpperCase() : 'DOCUMENT'}
+                    </span>
+                    <span>•</span>
+                    <span>
+                      {doc.uploaded_at
+                        ? new Date(doc.uploaded_at).toLocaleTimeString([], {
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : 'Recently'}
+                    </span>
+                  </div>
+                </div>
+                <StatusBadge
+                  status={doc.needs_human_review ? 'needs_review' : 'validated'}
+                />
               </div>
             ))
           )}
