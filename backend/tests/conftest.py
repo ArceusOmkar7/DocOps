@@ -15,7 +15,7 @@ def cleanup_test_data():
     # Clean up test organizations created by pytest tests
     async def _cleanup():
         async with async_session_factory() as db:
-            await db.execute(delete(Organization).where(Organization.slug != "default-org"))
+            await db.execute(delete(Organization).where(Organization.slug.startswith("test-org-")))
             await db.execute(delete(Client).where(Client.name == "General Client"))
             await db.commit()
 

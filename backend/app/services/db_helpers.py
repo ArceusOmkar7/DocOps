@@ -22,7 +22,7 @@ async def get_or_create_default_organization(db: AsyncSession) -> Organization:
     org = res.scalar_one_or_none()
     if not org:
         org = Organization(
-            name="Acme Accounting & Tax Advisory",
+            name="Kapoor & Shah Associates",
             slug="default-org",
             plan="pro",
         )

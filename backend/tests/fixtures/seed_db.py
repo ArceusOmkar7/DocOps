@@ -232,7 +232,7 @@ async def seed(session: AsyncSession, extracted_data_map: dict) -> None:
     """), {
         "id": org_id,
         "name": "Kapoor & Shah Associates",
-        "slug": "kapoor-shah",
+        "slug": "default-org",
         "plan": "pro",
         "created_at": now,
     })
