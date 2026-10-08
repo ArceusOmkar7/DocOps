@@ -1,0 +1,13 @@
+{
+    "mcpServers": {
+        "projectmem": {
+            "type": "stdio",
+            "command": "C:\\Users\\hp\\AppData\\Local\\Python\\pythoncore-3.11-64\\python.exe",
+            "args": [
+                "-m",
+                "projectmem.mcp_server"
+            ],
+            "env": {}
+        }
+    }
+}

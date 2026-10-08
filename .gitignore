@@ -1,7 +1,9 @@
-# Local memory bank - never commit to git.
-memory-bank.md
 
 .agents
 
-# Graphify cache
-graphify-out/cache/
+.projectmem/events.jsonl
+.projectmem/watch.pid
+.projectmem/watch.log
+.projectmem/structure.json
+
+.impeccable/questions/

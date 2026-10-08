@@ -1,4 +1,4 @@
-# AI_Docs_Orch — Master Phase-Wise Implementation Plan
+# Patra — Master Phase-Wise Implementation Plan
 
 > **Document Version:** 1.0.0  
 > **Status:** Active Engineering Roadmap  
@@ -15,7 +15,7 @@ Today, accounting and Chartered Accountancy (CA) firms lose a substantial percen
 4. Repeatedly writing kickoff emails and chasing clients over phone/email for missing items.
 5. Manually validating mathematical totals, GSTINs, PANs, and redacting confidential client PII for compliance with data privacy regulations (e.g., India's DPDP Act 2023).
 
-**AI_Docs_Orch** automates this entire pre-accounting operational layer. Instead of accountants managing documents, documents move themselves through automated ingestion, local layout-aware OCR, classification, entity extraction, mathematical/statutory validation, dynamic workflow tracking, and proactive follow-up recommendations. The human accountant acts exclusively as the final reviewer and decision-maker (*Human-in-the-Loop*).
+**Patra** automates this entire pre-accounting operational layer. Instead of accountants managing documents, documents move themselves through automated ingestion, local layout-aware OCR, classification, entity extraction, mathematical/statutory validation, dynamic workflow tracking, and proactive follow-up recommendations. The human accountant acts exclusively as the final reviewer and decision-maker (*Human-in-the-Loop*).
 
 ---
 
@@ -80,7 +80,7 @@ Today, accounting and Chartered Accountancy (CA) firms lose a substantial percen
 │                     AI Copilot, Unified Search & Timeline Audit                       │
 ├───────────────────────────────────────────────────────────────────────────────────────┤
 │                                     PHASE 6                                           │
-│             Client Portal, Multi-Tenant RBAC & Tally Bridge Ecosystem                │
+│                    Client Portal & Multi-Tenant RBAC                                  │
 └───────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -238,7 +238,7 @@ Workflow Template (e.g. Audit)
 [ Active Workflow Instance ] ◀── Matching Ingested Documents
        │
        ▼
-[ Delta Calculation Engine ] ──▶ Received: [ Tally Backup ✓, GST Return ✓ ]
+[ Delta Calculation Engine ] ──▶ Received: [ Trial Balance ✓, GST Return ✓ ]
        │                         Missing:  [ TDS Return ❌, Stock Cert ❌ ]
        ▼
 [ Follow-Up Engine ] ──────────▶ 1. Kickoff Email Draft Generator
@@ -248,7 +248,7 @@ Workflow Template (e.g. Audit)
 
 #### 4.1 Specialized Accounting Workflow Templates (`backend/app/models/workflow.py`)
 1. **Statutory & Tax Audit Workflow**:
-   - Mandatory: *Tally Backup, GSTR-9/9C, Form 26AS, Bank Statements (All Accounts), PF/ESI Challans, Fixed Asset Invoices, Cash Verification Certificate, Stock Valuation Certificate, Director Balance Confirmations*.
+   - Mandatory: *Trial Balance, GSTR-9/9C, Form 26AS, Bank Statements (All Accounts), PF/ESI Challans, Fixed Asset Invoices, Cash Verification Certificate, Stock Valuation Certificate, Director Balance Confirmations*.
 2. **Income Tax Filing (ITR-1 to ITR-6)**:
    - Adaptive Checklist: Inferred from client entity type + previous year's filing (e.g., if client claimed 80D or home loan in PY, auto-add requirement for current FY).
    - Mandatory: *Form 16 / 16A, AIS / TIS, Capital Gains Statements, Bank Interest Certificates, Chapter VI-A Investment Proofs*.
@@ -338,10 +338,10 @@ Empower accountants to query their entire practice database in natural language,
 
 ---
 
-### PHASE 6: Client Portal, Multi-Tenant RBAC & Tally Bridge Ecosystem
+### PHASE 6: Client Portal & Multi-Tenant RBAC
 
 #### Goal
-Deliver client-facing self-service upload links, secure role-based access control, and preliminary Tally ERP integration bridges.
+Deliver client-facing self-service upload links and secure role-based access control across all firm roles.
 
 #### 6.1 Role-Based Access Control (RBAC) & Authentication
 - **Roles**:
@@ -357,12 +357,6 @@ Deliver client-facing self-service upload links, secure role-based access contro
   - Upload boxes per checklist item.
   - Instant client-side validation feedback (*"Uploaded file is an Invoice for July, but August is required"*).
 
-#### 6.3 Tally Integration Bridge (`backend/app/services/tally/`)
-- **Tally XML / Daybook Export**:
-  - Convert approved and validated purchase/sales invoices directly into standard Tally XML vouchers (`TALLYMESSAGE / VOUCHER`).
-  - Generate Importable Bank Payment / Receipt Vouchers.
-- **Tally Backup Extractor**:
-  - Unpack Tally `.tbk` / `Company.900` data files to automatically extract master chart of accounts, ledgers, and trial balances.
 
 ---
 
@@ -441,7 +435,7 @@ Deliver client-facing self-service upload links, secure role-based access contro
 | **M3** | Phase 3 | Multi-Channel Intake | Email IMAP/OAuth & WhatsApp Webhook Ingestion Pipeline | Client emails an attachment $\rightarrow$ automatically ingested, OCR'd, and matched. |
 | **M4** | Phase 4 | Workflow & Follow-Up Engine | Adaptive Checklists, Received/Missing Tracker, Kickoff Email Generator | Accountant opens workflow and immediately sees exact missing items + 1-click email draft. |
 | **M5** | Phase 5 | AI Copilot & Unified Search | Natural Language Copilot + Global Full-Text Search + Audit Log | Accountant asks "What's missing for ABC Audit?" and receives instant grounded answer. |
-| **M6** | Phase 6 | Client Portal & Tally Bridge | Dedicated Client Upload UI + Tally XML Voucher Exporter | Client uploads missing docs directly; approved invoices export directly to Tally ERP. |
+| **M6** | Phase 6 | Client Portal & RBAC | Dedicated Client Upload UI + JWT Multi-Tenant RBAC | Client uploads missing docs directly; accountants log in with role-scoped access. |
 
 ---
 
