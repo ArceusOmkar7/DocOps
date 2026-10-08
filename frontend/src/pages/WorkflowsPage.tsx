@@ -1,35 +1,39 @@
-import React, { useState } from 'react';
-import { ArrowRight, CheckSquare, GitPullRequest, Layers, Loader2, Plus, X } from 'lucide-react';
+import React, { useMemo, useState } from 'react';
+import { ChevronDown, ChevronRight, Plus, X } from 'lucide-react';
+import { ErrorState } from '../components/common/ErrorState';
+import { PageHeader } from '../components/common/PageHeader';
 import { WorkflowTemplateSelector } from '../components/workflows/WorkflowTemplateSelector';
 import { WorkflowTimeline } from '../components/workflows/WorkflowTimeline';
-import { StatusBadge } from '../components/common/StatusBadge';
 import { useClients } from '../hooks/useClients';
 import { useCreateWorkflow, useWorkflows } from '../hooks/useWorkflows';
 import { WorkflowTemplate } from '../data/workflowTemplates';
+import { documentTypeLabel, formatPeriod } from '../lib/format';
 import { DocumentType } from '../types/api';
-import styles from './DashboardPage.module.css';
-import wfStyles from './WorkflowsPage.module.css';
+import ui from '../styles/ui.module.css';
+import styles from './WorkflowsPage.module.css';
 
 export const WorkflowsPage: React.FC = () => {
-  const [showSelector, setShowSelector] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [clientId, setClientId] = useState('');
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [createError, setCreateError] = useState('');
 
-  const { data: workflows = [], isLoading } = useWorkflows();
+  const { data: workflows = [], isLoading, isError } = useWorkflows();
   const { data: clients = [] } = useClients();
-  const createWorkflowMutation = useCreateWorkflow();
+  const createWorkflow = useCreateWorkflow();
 
-  const handleLaunchTemplate = async (tmpl: WorkflowTemplate) => {
-    const targetClient = clients[0];
-    if (!targetClient) {
-      alert('Please register at least one client before initializing a compliance workflow.');
-      return;
-    }
+  const clientName = useMemo(() => new Map(clients.map((c) => [c.id, c.name])), [clients]);
+  const selectedClient = clients.find((c) => c.id === clientId) ?? clients[0];
 
+  const startFiling = async (tmpl: WorkflowTemplate) => {
+    if (!selectedClient) return;
+    setCreateError('');
     try {
-      await createWorkflowMutation.mutateAsync({
-        organization_id: targetClient.organization_id,
-        client_id: targetClient.id,
-        name: `${tmpl.name} — Current Period`,
-        workflow_type: tmpl.type as any,
+      await createWorkflow.mutateAsync({
+        organization_id: selectedClient.organization_id,
+        client_id: selectedClient.id,
+        name: `${tmpl.name}, current period`,
+        workflow_type: tmpl.type,
         period_start: new Date().toISOString().substring(0, 10),
         period_end: new Date(Date.now() + 30 * 86400000).toISOString().substring(0, 10),
         requirements: tmpl.requirements.map((req) => ({
@@ -38,108 +42,172 @@ export const WorkflowsPage: React.FC = () => {
           required_count: req.required_count || 1,
         })),
       });
-
-      setShowSelector(false);
-    } catch (err: any) {
-      alert(`Failed to initialize workflow: ${err.message}`);
+      setShowNew(false);
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'The filing could not be created.');
     }
   };
 
   return (
-    <div className={styles.container}>
-      {/* Header row */}
-      <div className={wfStyles.pageHeader}>
-        <button
-          className={styles.btnPrimary}
-          onClick={() => setShowSelector(!showSelector)}
-        >
-          {showSelector ? <X size={13} /> : <Plus size={13} />}
-          <span>{showSelector ? 'Close Templates' : 'Initialize Workflow'}</span>
-        </button>
-      </div>
+    <div className={ui.page}>
+      <PageHeader
+        title="Filings"
+        actions={
+          <button className={ui.btnPrimary} onClick={() => setShowNew(!showNew)}>
+            {showNew ? (
+              <X size={15} strokeWidth={1.75} aria-hidden="true" />
+            ) : (
+              <Plus size={15} strokeWidth={1.75} aria-hidden="true" />
+            )}
+            {showNew ? 'Cancel' : 'New filing'}
+          </button>
+        }
+      />
 
-      {/* Template picker */}
-      {showSelector && (
-        <div className={styles.cardSection}>
-          <div className={styles.cardHeader}>
-            <div className={styles.titleArea}>
-              <h3 className={styles.cardTitle} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                <CheckSquare size={15} className={styles.searchIcon} />
-                <span>Statutory Compliance Workflow Templates</span>
-              </h3>
-              <span className={styles.cardSubtitle}>
-                Select an audited template to orchestrate client document collection and filing checks
-              </span>
+      {showNew && (
+        <section className={ui.panel} aria-label="Start a filing">
+          <div className={ui.panelHead}>
+            <h2 className={ui.panelTitle}>Start a filing</h2>
+            <div className={ui.field} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <label className={ui.label} htmlFor="filing-client">
+                For client
+              </label>
+              <select
+                id="filing-client"
+                className={ui.select}
+                value={selectedClient?.id ?? ''}
+                onChange={(e) => setClientId(e.target.value)}
+              >
+                {clients.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
-          <div style={{ padding: 16 }}>
-            <WorkflowTemplateSelector onSelectTemplate={handleLaunchTemplate} />
-          </div>
-        </div>
+          {clients.length === 0 ? (
+            <div className={ui.empty}>
+              <span className={ui.emptyTitle}>Add a client first</span>
+              <span className={ui.emptyText}>
+                A filing belongs to a client. Register one on the Clients page, then come back.
+              </span>
+            </div>
+          ) : (
+            <WorkflowTemplateSelector
+              onSelectTemplate={startFiling}
+              disabled={createWorkflow.isPending}
+            />
+          )}
+          {createError && (
+            <p className={ui.errorText} role="alert" style={{ padding: '0 16px 14px' }}>
+              {createError}
+            </p>
+          )}
+        </section>
       )}
 
-      {/* Active workflows */}
-      <div className={styles.cardSection}>
-        <div className={styles.cardHeader}>
-          <div className={styles.titleArea}>
-            <h3 className={styles.cardTitle}>Active Compliance Workflows ({workflows.length})</h3>
-            <span className={styles.cardSubtitle}>
-              Client document checklists and statutory progression pipeline
-            </span>
-          </div>
+      <section className={ui.panel} aria-label="Filings">
+        <div className={ui.panelHead}>
+          <h2 className={ui.panelTitle}>
+            All filings
+            <span className={ui.panelCount}>{workflows.length}</span>
+          </h2>
         </div>
 
-        {isLoading ? (
-          <div className={styles.emptyState}>
-            <Loader2 size={20} className="animate-spin" />
-            <span>Fetching compliance workflows...</span>
+        {isError ? (
+          <ErrorState what="filings" />
+        ) : isLoading ? (
+          <div className={ui.empty} aria-busy="true">
+            <div className={ui.skeletonRow} style={{ width: '60%' }} />
           </div>
         ) : workflows.length === 0 ? (
-          <div className={styles.emptyState}>
-            <GitPullRequest size={28} />
-            <span>No active workflows. Initialize a template above to track client filings.</span>
+          <div className={ui.empty}>
+            <span className={ui.emptyTitle}>No filings yet</span>
+            <span className={ui.emptyText}>
+              Start a GST, TDS or ITR filing and Patra will track which documents are still missing.
+            </span>
           </div>
         ) : (
-          <div className={wfStyles.workflowList}>
-            {workflows.map((wf) => {
-              const reqs = wf.requirements || [];
-              const periodStr = `${wf.period_start} — ${wf.period_end}`;
-
-              return (
-                <div key={wf.id} className={wfStyles.workflowCard}>
-                  <div className={wfStyles.wfTop}>
-                    <div className={wfStyles.wfLeft}>
-                      <div className={wfStyles.wfIcon}>
-                        <GitPullRequest size={15} strokeWidth={1.75} />
-                      </div>
-                      <div className={wfStyles.wfInfo}>
-                        <h4 className={wfStyles.wfName}>{wf.name}</h4>
-                        <span className={wfStyles.wfMeta}>
-                          Period: {periodStr}
-                        </span>
-                      </div>
-                    </div>
-                    <StatusBadge status={wf.status} />
-                  </div>
-
-                  {/* Progression Timeline */}
-                  <WorkflowTimeline status={wf.status} />
-
-                  <div className={wfStyles.wfBottom}>
-                    <span className={wfStyles.wfProgress}>
-                      Checklist Requirements: {reqs.length} Statutory Document Items
-                    </span>
-                    <button className={styles.actionBtn}>
-                      <span>Inspect Checklist ({reqs.length})</span>
-                      <ArrowRight size={11} />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+          <div className={ui.tableWrap}>
+            <table className={ui.table}>
+              <thead>
+                <tr>
+                  <th scope="col" aria-label="Checklist" style={{ width: 36 }} />
+                  <th scope="col">Filing</th>
+                  <th scope="col">Client</th>
+                  <th scope="col">Period</th>
+                  <th scope="col">Stage</th>
+                  <th scope="col" className={ui.num}>Required documents</th>
+                </tr>
+              </thead>
+              <tbody>
+                {workflows.map((wf) => {
+                  const open = expanded === wf.id;
+                  const requirements = wf.requirements ?? [];
+                  return (
+                    <React.Fragment key={wf.id}>
+                      <tr
+                        className={ui.rowLink}
+                        onClick={() => setExpanded(open ? null : wf.id)}
+                      >
+                        <td>
+                          <button
+                            className={styles.toggle}
+                            aria-expanded={open}
+                            aria-label={`${open ? 'Hide' : 'Show'} checklist for ${wf.name}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setExpanded(open ? null : wf.id);
+                            }}
+                          >
+                            {open ? (
+                              <ChevronDown size={16} strokeWidth={1.75} aria-hidden="true" />
+                            ) : (
+                              <ChevronRight size={16} strokeWidth={1.75} aria-hidden="true" />
+                            )}
+                          </button>
+                        </td>
+                        <td className={styles.filingName}>{wf.name}</td>
+                        <td>{clientName.get(wf.client_id) ?? <span className={ui.muted}>Unknown</span>}</td>
+                        <td style={{ whiteSpace: 'nowrap' }}>
+                          {formatPeriod(wf.period_start, wf.period_end)}
+                        </td>
+                        <td>
+                          <WorkflowTimeline status={wf.status} />
+                        </td>
+                        <td className={ui.num}>{requirements.length}</td>
+                      </tr>
+                      {open && (
+                        <tr>
+                          <td />
+                          <td colSpan={5} className={styles.checklistCell}>
+                            {requirements.length === 0 ? (
+                              <span className={ui.muted}>This filing has no required documents.</span>
+                            ) : (
+                              <ul className={styles.checklist}>
+                                {requirements.map((req) => (
+                                  <li key={req.id}>
+                                    <span>{req.label}</span>
+                                    <span className={ui.muted}>
+                                      {documentTypeLabel(req.document_type)}
+                                      {req.required_count ? `, ${req.required_count} needed` : ''}
+                                    </span>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 };

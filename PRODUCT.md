@@ -12,11 +12,11 @@ Chartered Accountants (CAs), CPAs, tax professionals, and accounting firm audit/
 
 ## Product Purpose
 
-DocOps (AI Docs Orchestrator) eliminates pre-accounting manual overhead by automating document ingestion, layout-aware OCR extraction, classification, statutory cross-checks, and client checklist progression. It keeps the human accountant strictly as the final reviewer and authority (Human-in-the-Loop).
+Patra eliminates pre-accounting manual overhead by automating document ingestion, layout-aware OCR extraction, classification, statutory cross-checks, and client checklist progression. It keeps the human accountant strictly as the final reviewer and authority (Human-in-the-Loop).
 
 ## Positioning
 
-Unlike generic document intake or generic AI chatbots, DocOps is an audit-grade statutory orchestration platform designed specifically for accounting workflows—performing exact mathematical cross-validation, GSTIN/PAN statutory validation, compliance checklist tracking, and audit-ready inspection trails.
+Unlike generic document intake or generic AI chatbots, Patra is an audit-grade statutory orchestration platform designed specifically for accounting workflows. It performs exact mathematical cross-validation, GSTIN and PAN statutory validation, compliance checklist tracking, and audit-ready inspection trails.
 
 ## Operating Context
 
@@ -29,8 +29,9 @@ Accounting professionals operate in high-density, multi-client compliance enviro
 
 ## Brand Commitments
 
-- **Name**: DocOps / Document Operations & Compliance Platform
+- **Name**: Patra (Statutory Document & Compliance Orchestration)
 - **Tone**: Authoritative, precise, enterprise-grade, institutional, calm, and distraction-free. Not a toy, playful SaaS, or consumer chatbot.
+- **Interface style**: Familiar and intuitive over distinctive. The UI should look like accounting software a CA already knows how to use: standard controls, a clear register, no portfolio-style flourishes. Colour is reserved for state.
 
 ## Evidence on Hand
 

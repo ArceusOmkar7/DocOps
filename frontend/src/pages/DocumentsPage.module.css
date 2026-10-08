@@ -1,68 +1,7 @@
-.pageHeader {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.docName {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 600;
-  color: var(--stone-950);
-  font-size: 12px;
-  letter-spacing: -0.01em;
-}
-
-.docIcon {
-  width: 24px;
-  height: 24px;
-  border-radius: var(--radius-xs);
-  background-color: var(--stone-100);
-  border: 1px solid var(--stone-200);
-  color: var(--stone-600);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.typeBadge {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 1px 6px;
-  border-radius: var(--radius-xs);
-  background-color: var(--stone-100);
-  border: 1px solid var(--stone-200);
-  color: var(--stone-700);
-  letter-spacing: 0.02em;
-}
-
-.confCell {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.confDot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.confDotHigh {
-  background-color: #16a34a;
-}
-
-.confDotLow {
-  background-color: #d97706;
-}
-
-.confValue {
-  font-family: var(--font-mono);
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--stone-800);
+.fileName {
+  max-width: 44ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
 }

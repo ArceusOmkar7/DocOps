@@ -1,8 +1,4 @@
 @import './variables.css';
-@import './animations.css';
-
-/* Google Fonts Import */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
 *, *::before, *::after {
   box-sizing: border-box;
@@ -13,11 +9,11 @@
 html, body {
   height: 100%;
   width: 100%;
-  font-family: var(--font-family);
-  font-size: 13px;
+  font-family: var(--font);
+  font-size: var(--fs-md);
   line-height: 1.45;
-  background-color: var(--bg-app);
-  color: var(--text-primary);
+  background-color: var(--ground);
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -40,6 +36,7 @@ a {
 button {
   font-family: inherit;
   font-size: inherit;
+  color: inherit;
   cursor: pointer;
   border: none;
   background: none;
@@ -48,22 +45,45 @@ button {
 input, select, textarea {
   font-family: inherit;
   font-size: inherit;
+  color: inherit;
+  caret-color: var(--navy-800);
 }
 
-/* Tabular numbers for financial data */
-table, .tabular, code, pre {
+h1, h2, h3, h4 {
+  font-weight: 600;
+  text-wrap: balance;
+}
+
+/* Figures line up in every table and number cell */
+table, code, pre, .tabular {
   font-variant-numeric: tabular-nums;
 }
 
-::selection {
-  background: #262624;
-  color: #ffffff;
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
-/* Custom Minimal Scrollbars */
+::selection {
+  background: #cfe6db;
+  color: var(--navy-900);
+}
+
+::placeholder {
+  color: var(--text-3);
+  opacity: 1;
+}
+
+/* Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
@@ -71,17 +91,21 @@ table, .tabular, code, pre {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--stone-300);
-  border-radius: var(--radius-full);
+  background: var(--line-strong);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--stone-400);
+  background: var(--text-3);
+  background-clip: content-box;
 }
 
-/* Utility Helpers */
-.truncate {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

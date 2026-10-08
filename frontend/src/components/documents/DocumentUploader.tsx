@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { FileUp, Loader2 } from 'lucide-react';
 import { useParseDocument, useUploadDocument } from '../../hooks/useOCR';
+import ui from '../../styles/ui.module.css';
 import styles from './DocumentUploader.module.css';
 
 interface DocumentUploaderProps {
@@ -10,6 +11,7 @@ interface DocumentUploaderProps {
 
 export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSuccess, clientId }) => {
   const [dragActive, setDragActive] = useState(false);
+  const [error, setError] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const uploadMutation = useUploadDocument();
@@ -18,23 +20,25 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSuccess, c
   const isProcessing = uploadMutation.isPending || parseMutation.isPending;
 
   const handleFile = async (file: File) => {
+    setError('');
     try {
-      // Step 1: Run PaddleOCR layout extraction
+      // Step 1: layout-aware OCR
       const ocrResult = await uploadMutation.mutateAsync(file);
 
-      // Step 2: Parse into business object via LLM
+      // Step 2: classify and extract into a typed business object
       const resId = ocrResult.result_id || ocrResult.id;
       if (!resId) {
-        throw new Error('OCR extraction returned no result ID');
+        throw new Error('OCR returned no result ID');
       }
-      await parseMutation.mutateAsync({
-        resultId: resId,
-        clientId,
-      });
+      await parseMutation.mutateAsync({ resultId: resId, clientId });
 
       onSuccess?.();
     } catch (err) {
-      console.error('Document processing failed:', err);
+      setError(
+        err instanceof Error
+          ? `${file.name} could not be processed: ${err.message}`
+          : `${file.name} could not be processed.`
+      );
     }
   };
 
@@ -47,41 +51,51 @@ export const DocumentUploader: React.FC<DocumentUploaderProps> = ({ onSuccess, c
   };
 
   return (
-    <div
-      className={`${styles.dropzone} ${dragActive ? styles.active : ''}`}
-      onDragOver={(e) => {
-        e.preventDefault();
-        setDragActive(true);
-      }}
-      onDragLeave={() => setDragActive(false)}
-      onDrop={handleDrop}
-      onClick={() => fileInputRef.current?.click()}
-    >
+    <div>
+      <button
+        type="button"
+        className={`${styles.dropzone} ${dragActive ? styles.active : ''}`}
+        disabled={isProcessing}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragActive(true);
+        }}
+        onDragLeave={() => setDragActive(false)}
+        onDrop={handleDrop}
+        onClick={() => fileInputRef.current?.click()}
+      >
+        {isProcessing ? (
+          <Loader2 size={20} className={ui.spin} aria-hidden="true" />
+        ) : (
+          <FileUp size={20} strokeWidth={1.75} aria-hidden="true" />
+        )}
+        <span className={styles.text}>
+          <span className={styles.title}>
+            {isProcessing ? 'Reading the document. This can take a minute.' : 'Drop a file here, or choose one'}
+          </span>
+          <span className={styles.subtitle}>PDF, PNG, JPG, TIFF or BMP, up to 20 MB</span>
+        </span>
+      </button>
+
       <input
         ref={fileInputRef}
         type="file"
         className={styles.fileInput}
         accept=".pdf,.png,.jpg,.jpeg,.tiff,.bmp"
+        tabIndex={-1}
         onChange={(e) => {
           if (e.target.files && e.target.files[0]) {
             handleFile(e.target.files[0]);
+            e.target.value = '';
           }
         }}
       />
 
-      <div className={styles.iconCircle}>
-        {isProcessing ? <Loader2 size={24} className="animate-spin" /> : <FileUp size={24} />}
-      </div>
-
-      <div className={styles.title}>
-        {isProcessing
-          ? 'Extracting Document Intelligence...'
-          : 'Click or drag PDF / Image invoices to upload'}
-      </div>
-
-      <div className={styles.subtitle}>
-        Supports PDF, PNG, JPG (up to 20MB). Auto-runs PaddleOCR layout + LLM extraction.
-      </div>
+      {error && (
+        <p className={ui.errorText} role="alert" style={{ marginTop: 8 }}>
+          {error}
+        </p>
+      )}
     </div>
   );
 };

@@ -1,87 +1,45 @@
-.pageHeader {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-}
-
-.workflowList {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-}
-
-.workflowCard {
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--stone-200);
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transition: background-color var(--transition-fast);
-}
-
-.workflowCard:last-child {
-  border-bottom: none;
-}
-
-.workflowCard:hover {
-  background-color: var(--stone-50);
-}
-
-.wfTop {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.wfLeft {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.wfIcon {
-  width: 30px;
-  height: 30px;
-  border-radius: var(--radius-sm);
-  background-color: var(--stone-100);
-  border: 1px solid var(--stone-200);
-  color: var(--stone-700);
+.toggle {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-sm);
+  color: var(--text-3);
+  transition: background-color var(--t-fast), color var(--t-fast);
 }
 
-.wfInfo {
+.toggle:hover {
+  background: var(--line);
+  color: var(--text);
+}
+
+.filingName {
+  font-weight: 600;
+  min-width: 240px;
+}
+
+.checklistCell {
+  padding-top: 4px;
+  padding-bottom: 14px;
+  background: var(--surface-sunk);
+}
+
+.checklist {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  max-width: 760px;
 }
 
-.wfName {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--stone-950);
-  letter-spacing: -0.01em;
-  margin: 0;
-}
-
-.wfMeta {
-  font-size: 11px;
-  color: var(--stone-500);
-  font-family: var(--font-mono);
-}
-
-.wfBottom {
+.checklist li {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding-top: 4px;
+  gap: 24px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
 }
 
-.wfProgress {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--stone-600);
+.checklist li:last-child {
+  border-bottom: none;
 }

@@ -1,0 +1,358 @@
+/* Shared building blocks: page frame, panels, tables, buttons, form controls. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px 28px 32px;
+  max-width: 1480px;
+}
+
+@media (max-width: 800px) {
+  .page {
+    padding: 16px 16px 28px;
+  }
+
+  .search .input {
+    width: 100%;
+  }
+
+  .search {
+    flex: 1;
+    min-width: 160px;
+  }
+}
+
+/* Panel: one flat surface with a 1px rule. No shadow, no nested panels. */
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  min-width: 0;
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.panelTitle {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text);
+}
+
+.panelCount {
+  font-weight: 400;
+  color: var(--text-3);
+  margin-left: 6px;
+}
+
+.tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Buttons */
+.btn,
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-md);
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+  transition: background-color var(--t-fast), border-color var(--t-fast);
+}
+
+.btn:hover {
+  background: var(--surface-hover);
+  border-color: var(--text-3);
+}
+
+.btnPrimary {
+  background: var(--navy-800);
+  border-color: var(--navy-800);
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: var(--navy-600);
+  border-color: var(--navy-600);
+}
+
+.btn:disabled,
+.btnPrimary:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.btnQuiet {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-2);
+  transition: background-color var(--t-fast), color var(--t-fast);
+}
+
+.btnQuiet:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+/* Inputs */
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.label {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-2);
+}
+
+.hint {
+  font-size: var(--fs-xs);
+  color: var(--text-3);
+}
+
+.input,
+.select {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: var(--fs-md);
+  min-width: 0;
+  transition: border-color var(--t-fast);
+}
+
+.input:hover,
+.select:hover {
+  border-color: var(--text-3);
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  outline-offset: 0;
+  border-color: var(--navy-800);
+}
+
+.search {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-3);
+  pointer-events: none;
+}
+
+.search .input {
+  padding-left: 32px;
+  width: 250px;
+}
+
+/* Tables */
+.tableWrap {
+  overflow-x: auto;
+  container-type: inline-size;
+}
+
+/* Secondary columns drop out when the table is squeezed, for example beside the open drawer */
+@container (max-width: 760px) {
+  .hideNarrow {
+    display: none;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: var(--fs-md);
+}
+
+.table th {
+  text-align: left;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-3);
+  padding: 9px 16px;
+  background: var(--surface-sunk);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rowLink {
+  cursor: pointer;
+  transition: background-color var(--t-fast);
+}
+
+.rowLink:hover {
+  background: var(--surface-hover);
+}
+
+.clipCell {
+  max-width: 24ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.num {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.primaryCell {
+  font-weight: 600;
+  color: var(--text);
+  background: none;
+  text-align: left;
+  padding: 0;
+}
+
+.primaryCell:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.sub {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-3);
+  margin-top: 1px;
+}
+
+.id {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.01em;
+  color: var(--text-3);
+}
+
+.muted {
+  color: var(--text-3);
+}
+
+/* States */
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 28px 20px;
+}
+
+.emptyTitle {
+  font-weight: 600;
+  color: var(--text);
+}
+
+.emptyText {
+  color: var(--text-3);
+  max-width: 52ch;
+}
+
+.skeletonRow {
+  height: 14px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--surface-sunk) 25%, var(--line) 50%, var(--surface-sunk) 75%);
+  background-size: 300% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+
+@keyframes shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0 0; }
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.errorText {
+  color: var(--bad);
+  font-size: var(--fs-sm);
+}
+
+/* Dialog */
+.dialog {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 0;
+  width: 460px;
+  max-width: calc(100vw - 32px);
+  color: var(--text);
+  background: var(--surface);
+  margin: auto;
+}
+
+.dialog::backdrop {
+  background: rgba(15, 26, 48, 0.45);
+}
+
+.dialogHead {
+  padding: 16px 20px 12px;
+}
+
+.dialogBody {
+  padding: 0 20px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.dialogFoot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 16px 20px 18px;
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}

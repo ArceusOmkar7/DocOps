@@ -1,291 +1,256 @@
-import React, { useState } from 'react';
-import { Loader2, Plus, Users, X } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Plus, Search } from 'lucide-react';
+import { ErrorState } from '../components/common/ErrorState';
+import { PageHeader } from '../components/common/PageHeader';
 import { StatusBadge } from '../components/common/StatusBadge';
 import { useClients, useCreateClient } from '../hooks/useClients';
 import { useOrganizations } from '../hooks/useOrganizations';
+import { clientStatusLabel } from '../lib/format';
 import { ClientStatus } from '../types/api';
-import styles from './DashboardPage.module.css';
+import ui from '../styles/ui.module.css';
+
+const EMPTY_FORM = { name: '', tax_id: '', contact_person: '', email: '', phone: '' };
 
 export const ClientsPage: React.FC = () => {
-  const { data: clients = [], isLoading } = useClients();
+  const navigate = useNavigate();
+  const { data: clients = [], isLoading, isError } = useClients();
   const { data: orgs = [] } = useOrganizations();
-  const createClientMutation = useCreateClient();
+  const createClient = useCreateClient();
 
-  const [showModal, setShowModal] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    tax_id: '',
-    contact_person: '',
-    email: '',
-    phone: '',
-  });
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [form, setForm] = useState(EMPTY_FORM);
+  const [formError, setFormError] = useState('');
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const reset = () => {
+      setForm(EMPTY_FORM);
+      setFormError('');
+    };
+    dialog.addEventListener('close', reset);
+    return () => dialog.removeEventListener('close', reset);
+  }, []);
+
+  const q = query.trim().toLowerCase();
+  const visible = clients.filter(
+    (c) => !q || c.name.toLowerCase().includes(q) || (c.tax_id ?? '').toLowerCase().includes(q)
+  );
+
+  const update = (field: keyof typeof EMPTY_FORM) => (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [field]: e.target.value });
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name) return;
-
-    // Use first available org ID or default fallback
     const orgId = orgs[0]?.id;
     if (!orgId) {
-      alert('No organization found. Please ensure backend is running.');
+      setFormError('No firm record was found. Check that the backend is running and seeded.');
       return;
     }
-
     try {
-      await createClientMutation.mutateAsync({
+      await createClient.mutateAsync({
         organization_id: orgId,
-        name: formData.name,
-        tax_id: formData.tax_id || undefined,
-        contact_person: formData.contact_person || undefined,
-        email: formData.email || undefined,
-        phone: formData.phone || undefined,
+        name: form.name.trim(),
+        tax_id: form.tax_id.trim() || undefined,
+        contact_person: form.contact_person.trim() || undefined,
+        email: form.email.trim() || undefined,
+        phone: form.phone.trim() || undefined,
         status: ClientStatus.ON_TRACK,
       });
-
-      setShowModal(false);
-      setFormData({ name: '', tax_id: '', contact_person: '', email: '', phone: '' });
-    } catch (err: any) {
-      alert(`Failed to create client: ${err.message}`);
+      dialogRef.current?.close();
+    } catch (err) {
+      setFormError(err instanceof Error ? err.message : 'The client could not be saved.');
     }
   };
 
   return (
-    <div className={styles.container}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)' }}>
-            Client Management
-          </h2>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
-            View and manage organizational clients and their compliance state.
-          </p>
-        </div>
-        <button className={styles.btnPrimary} onClick={() => setShowModal(true)}>
-          <Plus size={16} />
-          Add Client
-        </button>
-      </div>
+    <div className={ui.page}>
+      <PageHeader
+        title="Clients"
+        actions={
+          <button className={ui.btnPrimary} onClick={() => dialogRef.current?.showModal()}>
+            <Plus size={15} strokeWidth={1.75} aria-hidden="true" />
+            Add client
+          </button>
+        }
+      />
 
-      <div className={styles.cardSection}>
-        <div className={styles.tableContainer}>
-          {isLoading ? (
-            <div style={{ padding: 40, textAlign: 'center', color: '#64748b' }}>
-              <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto 8px' }} />
-              <span>Fetching clients...</span>
-            </div>
-          ) : clients.length === 0 ? (
-            <div style={{ padding: 48, textAlign: 'center', color: '#64748b' }}>
-              <Users size={36} style={{ margin: '0 auto 12px', opacity: 0.5 }} />
-              <div style={{ fontSize: 16, fontWeight: 600, color: '#0f172a' }}>
-                No Clients Found
-              </div>
-              <div style={{ fontSize: 13, marginTop: 4 }}>
-                Click "Add Client" above to register your first organizational client.
-              </div>
-            </div>
-          ) : (
-            <table className={styles.table}>
+      <section className={ui.panel} aria-label="Client directory">
+        <div className={ui.panelHead}>
+          <h2 className={ui.panelTitle}>
+            All clients
+            <span className={ui.panelCount}>{clients.length}</span>
+          </h2>
+          <label className={ui.search}>
+            <Search size={14} className={ui.searchIcon} aria-hidden="true" />
+            <input
+              type="search"
+              className={ui.input}
+              placeholder="Search by name or GSTIN"
+              aria-label="Search clients by name or GSTIN"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
+          </label>
+        </div>
+
+        {isError ? (
+          <ErrorState what="clients" />
+        ) : isLoading ? (
+          <div className={ui.empty} aria-busy="true">
+            <div className={ui.skeletonRow} style={{ width: '60%' }} />
+          </div>
+        ) : visible.length === 0 ? (
+          <div className={ui.empty}>
+            <span className={ui.emptyTitle}>
+              {clients.length === 0 ? 'No clients yet' : 'No clients match'}
+            </span>
+            <span className={ui.emptyText}>
+              {clients.length === 0
+                ? 'Use Add client to register the first one.'
+                : 'Try a different name or GSTIN.'}
+            </span>
+          </div>
+        ) : (
+          <div className={ui.tableWrap}>
+            <table className={ui.table}>
               <thead>
                 <tr>
-                  <th>Client</th>
-                  <th>Status</th>
-                  <th>Tax ID (GSTIN)</th>
-                  <th>Contact Person</th>
-                  <th>Phone</th>
-                  <th>Email</th>
+                  <th scope="col">Client</th>
+                  <th scope="col">Contact</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {clients.map((client) => {
-                  const initials = client.name
-                    .split(' ')
-                    .map((n) => n[0])
-                    .join('')
-                    .substring(0, 2)
-                    .toUpperCase();
-
-                  return (
-                    <tr key={client.id}>
-                      <td>
-                        <div className={styles.clientCell}>
-                          <div className={styles.avatar}>{initials}</div>
-                          <div className={styles.clientInfo}>
-                            <span className={styles.clientName}>{client.name}</span>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <StatusBadge status={client.status || 'on_track'} />
-                      </td>
-                      <td style={{ color: '#475569', fontWeight: 500 }}>
-                        {client.tax_id || 'N/A'}
-                      </td>
-                      <td>{client.contact_person || 'N/A'}</td>
-                      <td style={{ color: 'var(--text-muted)' }}>{client.phone || 'N/A'}</td>
-                      <td style={{ color: 'var(--text-muted)' }}>{client.email || 'N/A'}</td>
-                    </tr>
-                  );
-                })}
+                {visible.map((client) => (
+                  <tr
+                    key={client.id}
+                    className={ui.rowLink}
+                    onClick={() => navigate(`/documents?client=${client.id}`)}
+                  >
+                    <td>
+                      <Link
+                        to={`/documents?client=${client.id}`}
+                        className={ui.primaryCell}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {client.name}
+                      </Link>
+                      <span className={`${ui.sub} ${ui.id}`}>
+                        {client.tax_id || 'No GSTIN on file'}
+                      </span>
+                    </td>
+                    <td>
+                      {client.contact_person || <span className={ui.muted}>Not recorded</span>}
+                      {client.email && <span className={ui.sub}>{client.email}</span>}
+                    </td>
+                    <td style={{ whiteSpace: 'nowrap' }}>
+                      {client.phone || <span className={ui.muted}>Not recorded</span>}
+                    </td>
+                    <td>
+                      <StatusBadge
+                        status={client.status}
+                        label={clientStatusLabel(client.status)}
+                      />
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
-          )}
-        </div>
-      </div>
-
-      {/* Add Client Modal */}
-      {showModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            backgroundColor: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-          }}
-          onClick={() => setShowModal(false)}
-        >
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              borderRadius: 12,
-              width: 440,
-              maxWidth: '90%',
-              padding: 24,
-              boxShadow: '0 20px 25px -5px rgba(0,0,0,0.1)',
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <h3 style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Add New Client</h3>
-              <button
-                onClick={() => setShowModal(false)}
-                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
-              >
-                <X size={18} />
-              </button>
-            </div>
-
-            <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 4 }}>
-                  Client / Business Name *
-                </label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Acme Tech Solutions"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 6,
-                    border: '1px solid #cbd5e1',
-                    fontSize: 13,
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 4 }}>
-                  Tax ID / GSTIN
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. 27ABCDE1234F1Z5"
-                  value={formData.tax_id}
-                  onChange={(e) => setFormData({ ...formData, tax_id: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 6,
-                    border: '1px solid #cbd5e1',
-                    fontSize: 13,
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 4 }}>
-                    Contact Person
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Full name"
-                    value={formData.contact_person}
-                    onChange={(e) => setFormData({ ...formData, contact_person: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: 6,
-                      border: '1px solid #cbd5e1',
-                      fontSize: 13,
-                    }}
-                  />
-                </div>
-                <div>
-                  <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 4 }}>
-                    Phone
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="+91 98765 43210"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    style={{
-                      width: '100%',
-                      padding: '8px 12px',
-                      borderRadius: 6,
-                      border: '1px solid #cbd5e1',
-                      fontSize: 13,
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label style={{ fontSize: 12, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 4 }}>
-                  Email Address
-                </label>
-                <input
-                  type="email"
-                  placeholder="client@example.com"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '8px 12px',
-                    borderRadius: 6,
-                    border: '1px solid #cbd5e1',
-                    fontSize: 13,
-                  }}
-                />
-              </div>
-
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 8 }}>
-                <button
-                  type="button"
-                  onClick={() => setShowModal(false)}
-                  className={styles.actionBtn}
-                  style={{ padding: '7px 14px', fontSize: 12 }}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={createClientMutation.isPending}
-                  className={styles.btnPrimary}
-                >
-                  {createClientMutation.isPending ? 'Registering...' : 'Register Client'}
-                </button>
-              </div>
-            </form>
           </div>
-        </div>
-      )}
+        )}
+      </section>
+
+      <dialog ref={dialogRef} className={ui.dialog} aria-labelledby="add-client-title">
+        <form onSubmit={handleCreate}>
+          <div className={ui.dialogHead}>
+            <h2 id="add-client-title" className={ui.panelTitle}>
+              Add client
+            </h2>
+          </div>
+          <div className={ui.dialogBody}>
+            <div className={ui.field}>
+              <label className={ui.label} htmlFor="client-name">
+                Client or business name
+              </label>
+              <input
+                id="client-name"
+                className={ui.input}
+                required
+                placeholder="Rajput Steelworks Pvt Ltd"
+                value={form.name}
+                onChange={update('name')}
+              />
+            </div>
+            <div className={ui.field}>
+              <label className={ui.label} htmlFor="client-gstin">
+                GSTIN
+              </label>
+              <input
+                id="client-gstin"
+                className={ui.input}
+                placeholder="24AABCR5678Q1ZP"
+                value={form.tax_id}
+                onChange={update('tax_id')}
+              />
+            </div>
+            <div className={ui.formRow}>
+              <div className={ui.field}>
+                <label className={ui.label} htmlFor="client-contact">
+                  Contact person
+                </label>
+                <input
+                  id="client-contact"
+                  className={ui.input}
+                  value={form.contact_person}
+                  onChange={update('contact_person')}
+                />
+              </div>
+              <div className={ui.field}>
+                <label className={ui.label} htmlFor="client-phone">
+                  Phone
+                </label>
+                <input
+                  id="client-phone"
+                  className={ui.input}
+                  type="tel"
+                  placeholder="+91 98240 11223"
+                  value={form.phone}
+                  onChange={update('phone')}
+                />
+              </div>
+            </div>
+            <div className={ui.field}>
+              <label className={ui.label} htmlFor="client-email">
+                Email
+              </label>
+              <input
+                id="client-email"
+                className={ui.input}
+                type="email"
+                value={form.email}
+                onChange={update('email')}
+              />
+            </div>
+            {formError && (
+              <p className={ui.errorText} role="alert">
+                {formError}
+              </p>
+            )}
+          </div>
+          <div className={ui.dialogFoot}>
+            <button type="button" className={ui.btn} onClick={() => dialogRef.current?.close()}>
+              Cancel
+            </button>
+            <button type="submit" className={ui.btnPrimary} disabled={createClient.isPending}>
+              {createClient.isPending ? 'Saving' : 'Save client'}
+            </button>
+          </div>
+        </form>
+      </dialog>
     </div>
   );
 };

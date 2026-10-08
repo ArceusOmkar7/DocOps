@@ -1,70 +1,34 @@
 .badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 2px 7px;
-  border-radius: var(--radius-xs);
-  font-size: 11px;
-  font-weight: 500;
-  line-height: 1.3;
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.5;
   white-space: nowrap;
   border: 1px solid;
-  letter-spacing: -0.01em;
 }
 
-.dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  flex-shrink: 0;
+.ok {
+  background: var(--ok-tint);
+  color: var(--ok);
+  border-color: var(--ok-line);
 }
 
-/* Green - Ready / Validated / On Track (Quiet Botanical) */
-.green {
-  background-color: #f0fdf4;
-  color: #166534;
-  border-color: #bbf7d0;
-}
-.green .dot {
-  background-color: #16a34a;
+.warn {
+  background: var(--warn-tint);
+  color: var(--warn);
+  border-color: var(--warn-line);
 }
 
-/* Amber - Needs Review / Human Verification */
-.amber {
-  background-color: #fffbeb;
-  color: #92400e;
-  border-color: #fde68a;
-}
-.amber .dot {
-  background-color: #d97706;
+.bad {
+  background: var(--bad-tint);
+  color: var(--bad);
+  border-color: var(--bad-line);
 }
 
-/* Red - Action Required / Failed / Critical Gap */
-.red {
-  background-color: #fef2f2;
-  color: #991b1b;
-  border-color: #fecaca;
-}
-.red .dot {
-  background-color: #dc2626;
-}
-
-/* Blue / Slate - Processing / In Transit */
-.blue {
-  background-color: #f8fafc;
-  color: #1e293b;
-  border-color: #e2e8f0;
-}
-.blue .dot {
-  background-color: #475569;
-}
-
-/* Gray - Default Neutral */
-.gray {
-  background-color: #fafaf9;
-  color: #52524d;
-  border-color: #e7e7e4;
-}
-.gray .dot {
-  background-color: #a8a8a2;
+.idle {
+  background: var(--idle-tint);
+  color: var(--idle);
+  border-color: var(--idle-line);
 }

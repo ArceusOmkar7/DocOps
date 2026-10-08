@@ -1,389 +1,152 @@
-/* ── Page container ─────────────────────────────────── */
-.container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ── Stat Cards ─────────────────────────────────────── */
-.statsGrid {
+.layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 1180px) {
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.skeletons {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 16px;
+}
+
+.filingName {
+  display: block;
+  max-width: 30ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.docs {
+  display: flex;
+  align-items: center;
   gap: 10px;
 }
 
-/* ── Card Section wrapper ───────────────────────────── */
-.cardSection {
-  background-color: #ffffff;
-  border: 1px solid var(--stone-200);
-  border-radius: var(--radius-md);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+.docsText {
+  color: var(--text-2);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
 }
 
-.cardHeader {
+/* Totals row doubles as the colour legend */
+.totals {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  padding: 11px 16px;
+  border-top: 1px solid var(--line-strong);
+  background: var(--surface-sunk);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  list-style: none;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  display: inline-block;
+}
+
+.sValidated { background: var(--ok-bar); }
+.sReview { background: var(--warn-bar); }
+.sFailed { background: var(--bad-bar); }
+.sPending { background: var(--idle-bar); }
+
+/* Attention queue */
+.queue {
+  list-style: none;
+}
+
+.queue li + li {
+  border-top: 1px solid var(--line);
+}
+
+.queueItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
   padding: 12px 16px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-bottom: 1px solid var(--stone-200);
-  background-color: #ffffff;
-}
-
-.titleArea {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.cardTitle {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: var(--stone-950);
-  letter-spacing: -0.015em;
-  margin: 0;
-}
-
-.cardSubtitle {
-  font-size: 11px;
-  color: var(--stone-500);
-}
-
-.headerActions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* ── Inputs & controls ──────────────────────────────── */
-.filterSelect {
-  padding: 5px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--stone-200);
-  background-color: var(--stone-50);
-  color: var(--stone-700);
-  font-size: 11.5px;
-  outline: none;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.filterSelect:hover {
-  border-color: var(--stone-300);
-  background-color: #ffffff;
-}
-
-.filterSelect:focus {
-  border-color: var(--stone-900);
-  box-shadow: 0 0 0 1px var(--stone-900);
-}
-
-.searchBox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 5px 8px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--stone-200);
-  background-color: var(--stone-50);
-  width: 190px;
-  color: var(--stone-400);
-  transition: all var(--transition-fast);
-}
-
-.searchBox:focus-within {
-  border-color: var(--stone-900);
-  background-color: #ffffff;
-  box-shadow: 0 0 0 1px var(--stone-900);
-  color: var(--stone-700);
-}
-
-.searchIcon {
-  flex-shrink: 0;
-}
-
-.searchInput {
-  border: none;
-  background: none;
-  outline: none;
-  font-size: 11.5px;
-  width: 100%;
-  color: var(--stone-900);
-}
-
-.searchInput::placeholder {
-  color: var(--stone-400);
-}
-
-.btnPrimary {
-  background-color: var(--action-primary);
-  color: #ffffff;
-  font-weight: 600;
-  padding: 6px 12px;
-  border-radius: var(--radius-sm);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  transition: all var(--transition-fast);
-  border: 1px solid var(--action-primary);
-  cursor: pointer;
-  white-space: nowrap;
-  letter-spacing: -0.01em;
-}
-
-.btnPrimary:hover {
-  background-color: var(--action-primary-hover);
-  border-color: var(--action-primary-hover);
-}
-
-.btnPrimary:active {
-  background-color: var(--action-primary-active);
-}
-
-/* ── Table ──────────────────────────────────────────── */
-.tableContainer {
-  overflow-x: auto;
-  width: 100%;
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 12px;
-}
-
-.table th {
-  background-color: var(--stone-50);
-  color: var(--stone-500);
-  font-weight: 600;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 8px 14px;
   text-align: left;
-  border-bottom: 1px solid var(--stone-200);
-  white-space: nowrap;
+  transition: background-color var(--t-fast);
 }
 
-.table td {
-  padding: 9px 14px;
-  border-bottom: 1px solid var(--stone-200);
-  color: var(--stone-900);
-  vertical-align: middle;
+.queueItem:hover {
+  background: var(--surface-hover);
 }
 
-.tableRow {
-  transition: background-color var(--transition-fast);
-  cursor: pointer;
-}
-
-.tableRow:hover {
-  background-color: var(--stone-50);
-}
-
-.table tbody tr:last-child td {
-  border-bottom: none;
-}
-
-/* ── Client cell ──────────────────────────────────── */
-.clientCell {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
-}
-
-.avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-full);
-  background-color: var(--stone-100);
-  border: 1px solid var(--stone-200);
-  color: var(--stone-700);
-  font-weight: 600;
-  font-size: 10.5px;
-  font-family: var(--font-mono);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.clientInfo {
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-  overflow: hidden;
-  line-height: 1.25;
-}
-
-.clientName {
-  font-weight: 600;
-  color: var(--stone-950);
-  font-size: 12.5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  letter-spacing: -0.01em;
-}
-
-.clientGstin {
-  font-size: 10.5px;
-  color: var(--stone-500);
-  font-family: var(--font-mono);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.secondaryText {
-  color: var(--stone-700);
-  font-size: 12px;
-}
-
-.mutedCell {
-  color: var(--stone-500);
-  font-size: 11.5px;
-  font-family: var(--font-mono);
-}
-
-/* ── Action button ──────────────────────────────────── */
-.actionBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 8px;
-  border-radius: var(--radius-xs);
-  border: 1px solid var(--stone-200);
-  background-color: #ffffff;
-  color: var(--stone-700);
-  font-size: 11px;
-  font-weight: 500;
-  transition: all var(--transition-fast);
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.actionBtn:hover {
-  background-color: var(--stone-100);
-  border-color: var(--stone-300);
-  color: var(--stone-950);
-}
-
-/* ── Table footer ──────────────────────────────────── */
-.tableFooter {
-  padding: 8px 14px;
+.queueTop {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: var(--stone-50);
-  border-top: 1px solid var(--stone-200);
-  font-size: 11px;
-  color: var(--stone-500);
+  gap: 10px;
 }
 
-.emptyState {
-  padding: 36px 16px;
-  text-align: center;
-  color: var(--stone-400);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-/* ── Activity Feed ──────────────────────────────────── */
-.activityFeed {
-  display: flex;
-  flex-direction: column;
-}
-
-.activityItem {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--stone-200);
-  transition: background-color var(--transition-fast);
-  cursor: pointer;
-}
-
-.activityItem:last-child {
-  border-bottom: none;
-}
-
-.activityItem:hover {
-  background-color: var(--stone-50);
-}
-
-.actIcon {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-full);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 1px solid;
-}
-
-.actIconSuccess {
-  background-color: #f0fdf4;
-  color: #166534;
-  border-color: #dcfce7;
-}
-
-.actIconWarning {
-  background-color: #fffbeb;
-  color: #92400e;
-  border-color: #fef3c7;
-}
-
-.actContent {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-  line-height: 1.25;
-}
-
-.actMessage {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--stone-900);
-  white-space: nowrap;
+.queueFile {
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.actMessage strong {
+.tagReview,
+.tagFailed {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.tagReview { color: var(--warn); }
+.tagFailed { color: var(--bad); }
+
+.reason {
+  margin-top: 3px;
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.viewAll {
+  display: block;
+  padding: 11px 16px;
+  border-top: 1px solid var(--line);
   font-weight: 600;
-  color: var(--stone-950);
+  color: var(--text-2);
 }
 
-.actMeta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
-  color: var(--stone-500);
-}
-
-.docTypeTag {
-  font-family: var(--font-mono);
-  font-size: 9.5px;
-  font-weight: 600;
-  color: var(--stone-600);
-  background-color: var(--stone-100);
-  border: 1px solid var(--stone-200);
-  padding: 0 4px;
-  border-radius: var(--radius-xs);
-  letter-spacing: 0.02em;
+.viewAll:hover {
+  color: var(--text);
+  background: var(--surface-hover);
 }

@@ -16,12 +16,6 @@ export const AppRoutes: React.FC = () => {
         <Route path="clients" element={<ClientsPage />} />
         <Route path="documents" element={<DocumentsPage />} />
         <Route path="workflows" element={<WorkflowsPage />} />
-        <Route path="reminders" element={<DashboardPage />} />
-        <Route path="reports" element={<DashboardPage />} />
-        <Route path="rules" element={<SettingsPage />} />
-        <Route path="doc-types" element={<SettingsPage />} />
-        <Route path="users" element={<SettingsPage />} />
-        <Route path="integrations" element={<SettingsPage />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Route>

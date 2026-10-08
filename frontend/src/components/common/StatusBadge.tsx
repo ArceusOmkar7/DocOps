@@ -1,38 +1,24 @@
 import React from 'react';
 import styles from './StatusBadge.module.css';
 
+export type Tone = 'ok' | 'warn' | 'bad' | 'idle';
+
+/** Maps any backend status string (client, document or filing) to a tone. */
+export const toneFor = (status: string): Tone => {
+  const s = status.toLowerCase();
+  if (/(fail|reject|action|blocked)/.test(s)) return 'bad';
+  if (/(review|await|need|collecting)/.test(s)) return 'warn';
+  if (/(valid|track|complete|ready_for_filing|success)/.test(s)) return 'ok';
+  return 'idle';
+};
+
 interface StatusBadgeProps {
+  /** Raw backend status, used to pick the tone when `tone` is not given. */
   status: string;
-  variant?: 'green' | 'amber' | 'red' | 'blue' | 'gray';
-  label?: string;
+  label: string;
+  tone?: Tone;
 }
 
-export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, variant, label }) => {
-  const normalizeVariant = (): 'green' | 'amber' | 'red' | 'blue' | 'gray' => {
-    if (variant) return variant;
-    const s = status.toLowerCase().replace(/_/g, ' ');
-    if (s.includes('ready') || s.includes('validated') || s.includes('track') || s.includes('success') || s.includes('completed')) {
-      return 'green';
-    }
-    if (s.includes('waiting') || s.includes('pending') || s.includes('collecting')) {
-      return 'amber';
-    }
-    if (s.includes('review') || s.includes('reject') || s.includes('failed') || s.includes('action') || s.includes('need')) {
-      return 'red';
-    }
-    if (s.includes('processing') || s.includes('in progress')) {
-      return 'blue';
-    }
-    return 'gray';
-  };
-
-  const colorStyle = normalizeVariant();
-  const displayLabel = label || status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-
-  return (
-    <span className={`${styles.badge} ${styles[colorStyle]}`}>
-      <span className={styles.dot} />
-      {displayLabel}
-    </span>
-  );
-};
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, label, tone }) => (
+  <span className={`${styles.badge} ${styles[tone ?? toneFor(status)]}`}>{label}</span>
+);

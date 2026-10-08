@@ -1,46 +1,43 @@
 import React from 'react';
-import { Check } from 'lucide-react';
 import { WorkflowStatus } from '../../types/enums';
+import { workflowStatusLabel } from '../../lib/format';
 import styles from './WorkflowTimeline.module.css';
 
 interface WorkflowTimelineProps {
   status: WorkflowStatus;
 }
 
-const STEPS = [
-  { key: WorkflowStatus.COLLECTING_DOCUMENTS, label: 'Collecting Documents' },
-  { key: WorkflowStatus.READY_FOR_REVIEW, label: 'Ready for Review' },
-  { key: WorkflowStatus.IN_REVIEW, label: 'In Review' },
-  { key: WorkflowStatus.READY_FOR_FILING, label: 'Ready for Filing' },
-  { key: WorkflowStatus.COMPLETED, label: 'Completed' },
+const STAGES = [
+  WorkflowStatus.COLLECTING_DOCUMENTS,
+  WorkflowStatus.READY_FOR_REVIEW,
+  WorkflowStatus.IN_REVIEW,
+  WorkflowStatus.READY_FOR_FILING,
+  WorkflowStatus.COMPLETED,
 ];
 
+/** Five stages as five flat segments, with the current stage named underneath. */
 export const WorkflowTimeline: React.FC<WorkflowTimelineProps> = ({ status }) => {
-  const currentIndex = Math.max(0, STEPS.findIndex((s) => s.key === status));
-  const fillPct = (currentIndex / (STEPS.length - 1)) * 100;
+  const blocked = status === WorkflowStatus.BLOCKED;
+  const current = STAGES.indexOf(status);
 
   return (
-    <div className={styles.timeline}>
-      <div className={styles.lineTrack}>
-        <div className={styles.lineFill} style={{ width: `${fillPct}%` }} />
-      </div>
-
-      {STEPS.map((step, idx) => {
-        const isCompleted = idx < currentIndex;
-        const isActive = idx === currentIndex;
-
-        return (
-          <div
-            key={step.key}
-            className={`${styles.step} ${isActive ? styles.active : ''} ${isCompleted ? styles.completed : ''}`}
-          >
-            <div className={styles.circle}>
-              {isCompleted ? <Check size={13} /> : idx + 1}
-            </div>
-            <span className={styles.label}>{step.label}</span>
-          </div>
-        );
-      })}
+    <div className={styles.wrap}>
+      <ol
+        className={styles.stages}
+        aria-label={`Stage ${current + 1} of ${STAGES.length}: ${workflowStatusLabel(status)}`}
+      >
+        {STAGES.map((stage, i) => (
+          <li
+            key={stage}
+            className={`${styles.stage} ${!blocked && i < current ? styles.done : ''} ${
+              !blocked && i === current ? styles.current : ''
+            }`}
+          />
+        ))}
+      </ol>
+      <span className={blocked ? styles.labelBlocked : styles.label}>
+        {workflowStatusLabel(status)}
+      </span>
     </div>
   );
 };

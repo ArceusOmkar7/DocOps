@@ -1,0 +1,23 @@
+.bar {
+  display: flex;
+  gap: 2px;
+  width: 132px;
+  height: 8px;
+}
+
+.wide {
+  width: 100%;
+  height: 10px;
+}
+
+.segment {
+  flex-basis: 0;
+  min-width: 4px;
+  border-radius: 2px;
+  transition: flex-grow var(--t-base);
+}
+
+.validated { background: var(--ok-bar); }
+.review { background: var(--warn-bar); }
+.failed { background: var(--bad-bar); }
+.pending { background: var(--idle-bar); }

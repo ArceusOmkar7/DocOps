@@ -1,0 +1,111 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T00:00:00Z",
+  "title": "Design System: Patra",
+  "extensions": {
+    "colorMeta": {
+      "ink-navy": { "role": "primary", "displayName": "Ink Navy", "canonical": "#14213a", "tonalRamp": ["#0a1020", "#0f1a30", "#14213a", "#1d2e4f", "#2a3f66", "#5a6c8f", "#aab4c8", "#e3e7ef"] },
+      "validated": { "role": "tertiary", "displayName": "Audit Green", "canonical": "#0a6e4b", "tonalRamp": ["#04271b", "#074a33", "#0a6e4b", "#14865d", "#4aa683", "#8cc7ae", "#bfe0d0", "#e7f3ed"] },
+      "review": { "role": "tertiary", "displayName": "Review Amber", "canonical": "#85560a", "tonalRamp": ["#3d2704", "#5f3d07", "#85560a", "#b0740f", "#d4922a", "#e6b45f", "#f2d6a0", "#fbf1db"] },
+      "failed": { "role": "tertiary", "displayName": "Failure Red", "canonical": "#b0241a", "tonalRamp": ["#4a0f0a", "#7a1810", "#b0241a", "#c93b2e", "#dc6f64", "#eb9d95", "#f5c9c4", "#fcebe9"] },
+      "ground": { "role": "neutral", "displayName": "Cool Ground", "canonical": "#f1f3f7", "tonalRamp": ["#16223a", "#46516a", "#636c80", "#9aa2b3", "#c7cedb", "#e0e4eb", "#f1f3f7", "#ffffff"] }
+    },
+    "typographyMeta": {
+      "title": { "displayName": "Title", "purpose": "The page name, once per page." },
+      "panel-title": { "displayName": "Panel title", "purpose": "Names a panel; the count follows in muted weight." },
+      "body": { "displayName": "Body", "purpose": "Table cells, descriptions and form values." },
+      "label": { "displayName": "Label", "purpose": "Table headers, field labels, badges." },
+      "identifier": { "displayName": "Identifier", "purpose": "GSTIN, PAN, invoice and policy numbers only." }
+    },
+    "shadows": [
+      { "name": "drawer", "value": "-10px 0 28px -12px rgba(15, 26, 48, 0.22)", "purpose": "The docked document drawer lifting off the page." }
+    ],
+    "motion": [
+      { "name": "ease-out", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "All transitions; the drawer enters over 260ms, controls over 120ms." }
+    ],
+    "breakpoints": [
+      { "name": "narrow", "value": "800px" },
+      { "name": "drawer-overlay", "value": "900px" },
+      { "name": "desk-stack", "value": "1180px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single main action on a page, top right.",
+      "html": "<button class=\"ds-btn-primary\">Upload document</button>",
+      "css": ".ds-btn-primary { height: 34px; padding: 0 14px; border-radius: 4px; border: 1px solid #14213a; background: #14213a; color: #fff; font-weight: 600; font-size: 14px; cursor: pointer; transition: background-color 120ms; } .ds-btn-primary:hover { background: #2a3f66; border-color: #2a3f66; } .ds-btn-primary:focus-visible { outline: 2px solid #14213a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A supporting action next to a primary one.",
+      "html": "<button class=\"ds-btn\">Cancel</button>",
+      "css": ".ds-btn { height: 34px; padding: 0 14px; border-radius: 4px; border: 1px solid #c7cedb; background: #fff; color: #16223a; font-weight: 600; font-size: 14px; cursor: pointer; transition: background-color 120ms; } .ds-btn:hover { background: #f3f5f9; border-color: #636c80; } .ds-btn:focus-visible { outline: 2px solid #14213a; outline-offset: 2px; }"
+    },
+    {
+      "name": "Search Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Filters a register by name or GSTIN.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search by name or GSTIN\" />",
+      "css": ".ds-input { height: 34px; width: 250px; padding: 0 10px; border: 1px solid #c7cedb; border-radius: 4px; background: #fff; color: #16223a; font-size: 14px; } .ds-input:hover { border-color: #636c80; } .ds-input:focus-visible { outline: none; border-color: #14213a; box-shadow: 0 0 0 1px #14213a; }"
+    },
+    {
+      "name": "Nav Item",
+      "kind": "nav",
+      "refersTo": "nav-item",
+      "description": "A destination in the navy rail; the active one is raised.",
+      "html": "<div style=\"background:#14213a;padding:10px;width:200px\"><a class=\"ds-nav ds-nav-active\">Desk</a><a class=\"ds-nav\">Clients</a></div>",
+      "css": ".ds-nav { display: flex; align-items: center; height: 36px; padding: 0 11px; border-radius: 4px; color: #b4bdd0; font-weight: 600; font-size: 14px; transition: background-color 120ms, color 120ms; } .ds-nav:hover { background: #1b2b49; color: #fff; } .ds-nav-active, .ds-nav-active:hover { background: #243a62; color: #fff; }"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "badge-review",
+      "description": "Names a state in words, tinted by that state.",
+      "html": "<span class=\"ds-badge ds-badge-ok\">Validated</span> <span class=\"ds-badge ds-badge-warn\">Needs review</span>",
+      "css": ".ds-badge { display: inline-block; padding: 1px 8px; border: 1px solid; border-radius: 4px; font-size: 13px; font-weight: 600; line-height: 1.5; } .ds-badge-ok { background: #e7f3ed; color: #0a6e4b; border-color: #b9dac9; } .ds-badge-warn { background: #fbf1db; color: #85560a; border-color: #e9d09a; }"
+    },
+    {
+      "name": "Readiness Bar",
+      "kind": "custom",
+      "refersTo": "panel",
+      "description": "A client's documents as validated, review, failed and pending segments.",
+      "html": "<div class=\"ds-bar\"><span style=\"flex-grow:5;background:#14865d\"></span><span style=\"flex-grow:1;background:#d4922a\"></span><span style=\"flex-grow:2;background:#aab2c4\"></span></div>",
+      "css": ".ds-bar { display: flex; gap: 2px; width: 132px; height: 8px; } .ds-bar span { flex-basis: 0; min-width: 4px; border-radius: 2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Client Register",
+    "overview": "Patra looks like the books-of-account software an accountant already trusts: a ruled register of clients, one row each, with a bar showing how many of that client's documents are validated, in review, failed or pending. The screen is organised around the work, not around a metrics dashboard.",
+    "keyCharacteristics": [
+      "One flat surface type, the panel, with a 1px rule and no shadow.",
+      "State colour is the only decoration, and each state also has a text label.",
+      "Density first: 14px body, 13px secondary, 34px controls.",
+      "Figures are tabular; identifiers are mono; nothing else is."
+    ],
+    "rules": [
+      { "name": "The State-Only Colour Rule", "body": "Green, amber, red and slate mean validated, review, failed and pending, nowhere else. Brand and actions are navy.", "section": "colors" },
+      { "name": "The Label Beside the Colour Rule", "body": "A state is never colour alone: the badge, bar tooltip or row text always says it in words.", "section": "colors" },
+      { "name": "The Tabular Rule", "body": "Every table and total uses tabular numerals so columns of rupees align.", "section": "typography" },
+      { "name": "The No Shouting Rule", "body": "No uppercase tracked labels. Hierarchy comes from weight and size.", "section": "typography" },
+      { "name": "The Border-or-Shadow Rule", "body": "A surface has a 1px border or a shadow, never both. Panels use the border.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do lead a document's overview with its review reason when it is flagged.",
+      "Do keep one primary button per page and put it top right.",
+      "Do show \"Not recorded\" or \"Not found\" when a value is missing, never a plausible default.",
+      "Do format rupees with Indian grouping (₹1,42,350) and tabular numerals."
+    ],
+    "donts": [
+      "Don't add stat-card rows, avatar initials, gradient fills or decorative icon tiles.",
+      "Don't use green, amber or red for anything but state.",
+      "Don't add controls whose backend does not exist yet; leave them out until they work.",
+      "Don't use uppercase tracked micro-labels or emoji."
+    ]
+  }
+}
