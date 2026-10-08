@@ -1,0 +1,1070 @@
+{
+  "metrics": {
+    "total_documents": 22,
+    "classification_accuracy_pct": 95.5,
+    "mean_field_accuracy_pct": 82.7,
+    "review_flagged_pct": 31.8,
+    "category_breakdown": {
+      "clean": {
+        "count": 11,
+        "classification_accuracy_pct": 100.0,
+        "field_accuracy_pct": 93.9,
+        "avg_ocr_confidence": 0.972,
+        "review_flagged_count": 2
+      },
+      "scanned_good": {
+        "count": 5,
+        "classification_accuracy_pct": 100.0,
+        "field_accuracy_pct": 87.4,
+        "avg_ocr_confidence": 0.978,
+        "review_flagged_count": 1
+      },
+      "scanned_poor": {
+        "count": 4,
+        "classification_accuracy_pct": 75.0,
+        "field_accuracy_pct": 45.9,
+        "avg_ocr_confidence": 0.84,
+        "review_flagged_count": 2
+      },
+      "edge_cases": {
+        "count": 2,
+        "classification_accuracy_pct": 100.0,
+        "field_accuracy_pct": 0.0,
+        "avg_ocr_confidence": 0.492,
+        "review_flagged_count": 2
+      }
+    },
+    "latency": {
+      "mean_ocr_s": 3.68,
+      "mean_llm_s": 18.21,
+      "mean_total_s": 23.9
+    }
+  },
+  "results": [
+    {
+      "filename": "clean/invoice_rajput_rs0234.pdf",
+      "category": "clean",
+      "expected_type": "invoice",
+      "classified_type": "invoice",
+      "classification_correct": true,
+      "ocr_latency_s": 38.15,
+      "ocr_confidence": 0.9769,
+      "llm_latency_s": 24.56,
+      "total_latency_s": 64.71,
+      "needs_review": false,
+      "field_accuracy": 83.3,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "invoice_number",
+          "ground_truth": "RS/2026-27/0234",
+          "extracted": "RS/2026-27/0234",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "seller_gstin",
+          "ground_truth": "24AABCR5678Q1ZP",
+          "extracted": null,
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "buyer_gstin",
+          "ground_truth": "24AABFK9234P1ZS",
+          "extracted": "24AABFK9234P1ZS",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "subtotal",
+          "ground_truth": 100000.0,
+          "extracted": 100000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total",
+          "ground_truth": 118000.0,
+          "extracted": 118000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "cgst",
+          "ground_truth": 9000.0,
+          "extracted": 9000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/invoice_rajput_rs0235.pdf",
+      "category": "clean",
+      "expected_type": "invoice",
+      "classified_type": "invoice",
+      "classification_correct": true,
+      "ocr_latency_s": 1.2,
+      "ocr_confidence": 0.9794,
+      "llm_latency_s": 5.92,
+      "total_latency_s": 9.12,
+      "needs_review": true,
+      "field_accuracy": 66.7,
+      "review_reasons": [
+        "subtotal+tax (200600.00) != total (236708.00)"
+      ],
+      "field_scores": [
+        {
+          "field_name": "invoice_number",
+          "ground_truth": "RS/2026-27/0235",
+          "extracted": "RS/2026-27/0235",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "seller_gstin",
+          "ground_truth": "24AABCR5678Q1ZP",
+          "extracted": null,
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "buyer_gstin",
+          "ground_truth": "27AAGFC4321N1ZT",
+          "extracted": "27AAGFC4321N1ZT",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "subtotal",
+          "ground_truth": 200600.0,
+          "extracted": 200600.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total",
+          "ground_truth": 236708.0,
+          "extracted": 236708.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "igst",
+          "ground_truth": 36108.0,
+          "extracted": null,
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/invoice_codeify_ct0189.pdf",
+      "category": "clean",
+      "expected_type": "invoice",
+      "classified_type": "invoice",
+      "classification_correct": true,
+      "ocr_latency_s": 3.24,
+      "ocr_confidence": 0.9711,
+      "llm_latency_s": 4.76,
+      "total_latency_s": 10.0,
+      "needs_review": false,
+      "field_accuracy": 83.3,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "invoice_number",
+          "ground_truth": "CT/2026-27/0189",
+          "extracted": "CT/2026-27/0189",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "seller_gstin",
+          "ground_truth": "27AAGFC4321N1ZT",
+          "extracted": null,
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "buyer_gstin",
+          "ground_truth": "29AAACA1234F1ZU",
+          "extracted": "29AAACA1234F1ZU",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "subtotal",
+          "ground_truth": 750000.0,
+          "extracted": 750000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total",
+          "ground_truth": 885000.0,
+          "extracted": 885000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "igst",
+          "ground_truth": 135000.0,
+          "extracted": 135000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/bank_stmt_rajput_aug2026.pdf",
+      "category": "clean",
+      "expected_type": "bank_statement",
+      "classified_type": "bank_statement",
+      "classification_correct": true,
+      "ocr_latency_s": 3.79,
+      "ocr_confidence": 0.9629,
+      "llm_latency_s": 18.92,
+      "total_latency_s": 24.71,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "bank_name",
+          "ground_truth": "State Bank of India",
+          "extracted": "State Bank of India",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "account_number",
+          "ground_truth": "10987654321",
+          "extracted": "10987654321",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "opening_balance",
+          "ground_truth": 1450230.5,
+          "extracted": 1450230.5,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "closing_balance",
+          "ground_truth": 1065638.5,
+          "extracted": 1065638.5,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "transaction_count",
+          "ground_truth": 35,
+          "extracted": 35,
+          "matched": true,
+          "score": 1.0,
+          "note": "35/35 txns"
+        }
+      ]
+    },
+    {
+      "filename": "clean/bank_stmt_codeify_aug2026.pdf",
+      "category": "clean",
+      "expected_type": "bank_statement",
+      "classified_type": "bank_statement",
+      "classification_correct": true,
+      "ocr_latency_s": 3.2,
+      "ocr_confidence": 0.9621,
+      "llm_latency_s": 8.69,
+      "total_latency_s": 13.9,
+      "needs_review": true,
+      "field_accuracy": 99.3,
+      "review_reasons": [
+        "transaction 14 running balance mismatch: expected 3452400.00, got 3215692.00"
+      ],
+      "field_scores": [
+        {
+          "field_name": "bank_name",
+          "ground_truth": "Axis Bank",
+          "extracted": "Axis Bank",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "account_number",
+          "ground_truth": "9876501234",
+          "extracted": "9876501234",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "opening_balance",
+          "ground_truth": 2840650.0,
+          "extracted": 2840650.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "closing_balance",
+          "ground_truth": 3306887.0,
+          "extracted": 3306887.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "transaction_count",
+          "ground_truth": 28,
+          "extracted": 27,
+          "matched": true,
+          "score": 0.9642857142857143,
+          "note": "27/28 txns"
+        }
+      ]
+    },
+    {
+      "filename": "clean/gstr3b_rajput_aug2026.pdf",
+      "category": "clean",
+      "expected_type": "gst_return",
+      "classified_type": "gst_return",
+      "classification_correct": true,
+      "ocr_latency_s": 2.1,
+      "ocr_confidence": 0.9746,
+      "llm_latency_s": 3.96,
+      "total_latency_s": 8.06,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "gstin",
+          "ground_truth": "24AABCR5678Q1ZP",
+          "extracted": "24AABCR5678Q1ZP",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "return_type",
+          "ground_truth": "GSTR-3B",
+          "extracted": "GSTR-3B",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "taxable_turnover",
+          "ground_truth": 2240000.0,
+          "extracted": 2240000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "net_itc_total",
+          "ground_truth": 175000.0,
+          "extracted": 175000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/gstr3b_codeify_aug2026.pdf",
+      "category": "clean",
+      "expected_type": "gst_return",
+      "classified_type": "gst_return",
+      "classification_correct": true,
+      "ocr_latency_s": 1.91,
+      "ocr_confidence": 0.967,
+      "llm_latency_s": 3.53,
+      "total_latency_s": 7.44,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "gstin",
+          "ground_truth": "27AAGFC4321N1ZT",
+          "extracted": "27AAGFC4321N1ZT",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "return_type",
+          "ground_truth": "GSTR-3B",
+          "extracted": "GSTR-3B",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "taxable_turnover",
+          "ground_truth": 3870000.0,
+          "extracted": 3870000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "net_itc_total",
+          "ground_truth": 132800.0,
+          "extracted": 132800.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/form16_arjun_fy2526.pdf",
+      "category": "clean",
+      "expected_type": "tds_form",
+      "classified_type": "tds_form",
+      "classification_correct": true,
+      "ocr_latency_s": 2.76,
+      "ocr_confidence": 0.9801,
+      "llm_latency_s": 38.9,
+      "total_latency_s": 43.66,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "AKQPK7890G",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total_tds_deposited",
+          "ground_truth": 186000.0,
+          "extracted": 186000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "assessment_year",
+          "ground_truth": "2026-27",
+          "extracted": "2026-27",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/form26as_arjun_ay2627.pdf",
+      "category": "clean",
+      "expected_type": "tds_form",
+      "classified_type": "tds_form",
+      "classification_correct": true,
+      "ocr_latency_s": 1.89,
+      "ocr_confidence": 0.9653,
+      "llm_latency_s": 2.85,
+      "total_latency_s": 6.74,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "AKQPK7890G",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total_tds_deposited",
+          "ground_truth": 186000.0,
+          "extracted": 186000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "assessment_year",
+          "ground_truth": "2026-27",
+          "extracted": "2026-27",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/lic_receipt_arjun_80c.pdf",
+      "category": "clean",
+      "expected_type": "investment_proof",
+      "classified_type": "investment_proof",
+      "classification_correct": true,
+      "ocr_latency_s": 2.27,
+      "ocr_confidence": 0.972,
+      "llm_latency_s": 2.71,
+      "total_latency_s": 6.98,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "AKQPK7890G",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "section",
+          "ground_truth": "80C",
+          "extracted": "80C",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "amount_paid",
+          "ground_truth": 48000.0,
+          "extracted": 48000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "clean/ppf_statement_arjun_80c.pdf",
+      "category": "clean",
+      "expected_type": "investment_proof",
+      "classified_type": "investment_proof",
+      "classification_correct": true,
+      "ocr_latency_s": 1.11,
+      "ocr_confidence": 0.9807,
+      "llm_latency_s": 2.38,
+      "total_latency_s": 5.49,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "AKQPK7890G",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "section",
+          "ground_truth": "80C",
+          "extracted": "80C",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "amount_paid",
+          "ground_truth": 102000.0,
+          "extracted": 102000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "scanned_good/invoice_rajput_rs0234_scan.pdf",
+      "category": "scanned_good",
+      "expected_type": "invoice",
+      "classified_type": "invoice",
+      "classification_correct": true,
+      "ocr_latency_s": 1.83,
+      "ocr_confidence": 0.9746,
+      "llm_latency_s": 3.59,
+      "total_latency_s": 7.42,
+      "needs_review": false,
+      "field_accuracy": 66.7,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "invoice_number",
+          "ground_truth": "RS/2026-27/0234",
+          "extracted": "",
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "seller_gstin",
+          "ground_truth": "24AABCR5678Q1ZP",
+          "extracted": null,
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "buyer_gstin",
+          "ground_truth": "24AABFK9234P1ZS",
+          "extracted": "24AABFK9234P1ZS",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "subtotal",
+          "ground_truth": 100000.0,
+          "extracted": 100000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total",
+          "ground_truth": 118000.0,
+          "extracted": 118000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "cgst",
+          "ground_truth": 9000.0,
+          "extracted": 9000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "scanned_good/bank_stmt_rajput_scan.pdf",
+      "category": "scanned_good",
+      "expected_type": "bank_statement",
+      "classified_type": "bank_statement",
+      "classification_correct": true,
+      "ocr_latency_s": 2.66,
+      "ocr_confidence": 0.9891,
+      "llm_latency_s": 157.11,
+      "total_latency_s": 161.77,
+      "needs_review": true,
+      "field_accuracy": 70.3,
+      "review_reasons": [
+        "last transaction balance (1198080.50) != closing balance (1065638.50)"
+      ],
+      "field_scores": [
+        {
+          "field_name": "bank_name",
+          "ground_truth": "State Bank of India",
+          "extracted": "",
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "account_number",
+          "ground_truth": "10987654321",
+          "extracted": "10987654321",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "opening_balance",
+          "ground_truth": 1450230.5,
+          "extracted": 1450230.5,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "closing_balance",
+          "ground_truth": 1065638.5,
+          "extracted": 1065638.5,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "transaction_count",
+          "ground_truth": 35,
+          "extracted": 18,
+          "matched": false,
+          "score": 0.5142857142857142,
+          "note": "18/35 txns"
+        }
+      ]
+    },
+    {
+      "filename": "scanned_good/gstr3b_rajput_scan.pdf",
+      "category": "scanned_good",
+      "expected_type": "gst_return",
+      "classified_type": "gst_return",
+      "classification_correct": true,
+      "ocr_latency_s": 1.82,
+      "ocr_confidence": 0.9743,
+      "llm_latency_s": 48.56,
+      "total_latency_s": 52.37,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "gstin",
+          "ground_truth": "24AABCR5678Q1ZP",
+          "extracted": "24AABCR5678Q1ZP",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "return_type",
+          "ground_truth": "GSTR-3B",
+          "extracted": "GSTR-3B",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "taxable_turnover",
+          "ground_truth": 2240000.0,
+          "extracted": 2240000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "net_itc_total",
+          "ground_truth": 175000.0,
+          "extracted": 175000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "scanned_good/form16_arjun_scan.pdf",
+      "category": "scanned_good",
+      "expected_type": "tds_form",
+      "classified_type": "tds_form",
+      "classification_correct": true,
+      "ocr_latency_s": 2.82,
+      "ocr_confidence": 0.9812,
+      "llm_latency_s": 3.48,
+      "total_latency_s": 8.3,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "AKQPK7890G",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "total_tds_deposited",
+          "ground_truth": 186000.0,
+          "extracted": 186000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "assessment_year",
+          "ground_truth": "2026-27",
+          "extracted": "2026-27",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "scanned_good/lic_receipt_arjun_scan.pdf",
+      "category": "scanned_good",
+      "expected_type": "investment_proof",
+      "classified_type": "investment_proof",
+      "classification_correct": true,
+      "ocr_latency_s": 3.67,
+      "ocr_confidence": 0.9684,
+      "llm_latency_s": 45.81,
+      "total_latency_s": 51.48,
+      "needs_review": false,
+      "field_accuracy": 100.0,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "AKQPK7890G",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "section",
+          "ground_truth": "80C",
+          "extracted": "80C",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "amount_paid",
+          "ground_truth": 48000.0,
+          "extracted": 48000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "scanned_poor/invoice_codeify_ct0189_mobile.pdf",
+      "category": "scanned_poor",
+      "expected_type": "invoice",
+      "classified_type": "unknown",
+      "classification_correct": false,
+      "ocr_latency_s": 1.19,
+      "ocr_confidence": 0.5454,
+      "llm_latency_s": 2.47,
+      "total_latency_s": 5.66,
+      "needs_review": true,
+      "field_accuracy": 0.0,
+      "review_reasons": [
+        "Could not determine document type"
+      ],
+      "field_scores": [
+        {
+          "field_name": "invoice_payload",
+          "ground_truth": {
+            "invoice_number": "CT/2026-27/0189",
+            "date": "2026-08-22",
+            "seller_name": "Codeify Technologies LLP",
+            "seller_gstin": "27AAGFC4321N1ZT",
+            "buyer_name": "Apex Global Logistics Solutions Private Limited",
+            "buyer_gstin": "29AAACA1234F1ZU",
+            "subtotal": 750000.0,
+            "cgst": 0.0,
+            "sgst": 0.0,
+            "igst": 135000.0,
+            "total": 885000.0,
+            "tax_type": "inter_state"
+          },
+          "extracted": null,
+          "matched": false,
+          "score": 0.0,
+          "note": "Missing invoice payload"
+        }
+      ]
+    },
+    {
+      "filename": "scanned_poor/bank_stmt_codeify_mobile.pdf",
+      "category": "scanned_poor",
+      "expected_type": "bank_statement",
+      "classified_type": "bank_statement",
+      "classification_correct": true,
+      "ocr_latency_s": 1.44,
+      "ocr_confidence": 0.9818,
+      "llm_latency_s": 5.73,
+      "total_latency_s": 9.17,
+      "needs_review": true,
+      "field_accuracy": 50.0,
+      "review_reasons": [
+        "transaction 1 running balance mismatch: expected 4100692.00, got 3168892.00; transaction 4 running balance mismatch: expected 3450892.00, got 3315892.00; transaction 10 running balance mismatch: expected 3731172.00, got 3692772.00"
+      ],
+      "field_scores": [
+        {
+          "field_name": "bank_name",
+          "ground_truth": "Axis Bank",
+          "extracted": "Axis Bank",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "account_number",
+          "ground_truth": "9876501234",
+          "extracted": "",
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "opening_balance",
+          "ground_truth": 2840650.0,
+          "extracted": 3215692.0,
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "closing_balance",
+          "ground_truth": 3306887.0,
+          "extracted": 3306887.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "transaction_count",
+          "ground_truth": 28,
+          "extracted": 14,
+          "matched": false,
+          "score": 0.5,
+          "note": "14/28 txns"
+        }
+      ]
+    },
+    {
+      "filename": "scanned_poor/form26as_arjun_mobile.pdf",
+      "category": "scanned_poor",
+      "expected_type": "tds_form",
+      "classified_type": "tds_form",
+      "classification_correct": true,
+      "ocr_latency_s": 1.59,
+      "ocr_confidence": 0.9489,
+      "llm_latency_s": 2.88,
+      "total_latency_s": 6.46,
+      "needs_review": false,
+      "field_accuracy": 66.7,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "",
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "total_tds_deposited",
+          "ground_truth": 186000.0,
+          "extracted": 186000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "assessment_year",
+          "ground_truth": "2026-27",
+          "extracted": "2026-27",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "scanned_poor/ppf_statement_arjun_mobile.pdf",
+      "category": "scanned_poor",
+      "expected_type": "investment_proof",
+      "classified_type": "investment_proof",
+      "classification_correct": true,
+      "ocr_latency_s": 1.12,
+      "ocr_confidence": 0.8834,
+      "llm_latency_s": 11.97,
+      "total_latency_s": 15.09,
+      "needs_review": false,
+      "field_accuracy": 66.7,
+      "review_reasons": [],
+      "field_scores": [
+        {
+          "field_name": "pan",
+          "ground_truth": "AKQPK7890G",
+          "extracted": "",
+          "matched": false,
+          "score": 0.0,
+          "note": ""
+        },
+        {
+          "field_name": "section",
+          "ground_truth": "80C",
+          "extracted": "80C",
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        },
+        {
+          "field_name": "amount_paid",
+          "ground_truth": 102000.0,
+          "extracted": 102000.0,
+          "matched": true,
+          "score": 1.0,
+          "note": ""
+        }
+      ]
+    },
+    {
+      "filename": "edge_cases/payslip_arjun_aug2026.pdf",
+      "category": "edge_cases",
+      "expected_type": "unknown",
+      "classified_type": "unknown",
+      "classification_correct": true,
+      "ocr_latency_s": 0.89,
+      "ocr_confidence": 0.9833,
+      "llm_latency_s": 1.03,
+      "total_latency_s": 3.91,
+      "needs_review": true,
+      "field_accuracy": 100.0,
+      "review_reasons": [
+        "Could not determine document type"
+      ],
+      "field_scores": []
+    },
+    {
+      "filename": "edge_cases/blank_page.pdf",
+      "category": "edge_cases",
+      "expected_type": "unknown",
+      "classified_type": "unknown",
+      "classification_correct": true,
+      "ocr_latency_s": 0.38,
+      "ocr_confidence": null,
+      "llm_latency_s": 0.9,
+      "total_latency_s": 3.28,
+      "needs_review": true,
+      "field_accuracy": 100.0,
+      "review_reasons": [
+        "Could not determine document type"
+      ],
+      "field_scores": []
+    }
+  ]
+}
