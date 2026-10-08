@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 36" fill="none">
+  <!-- Mark -->
+  <rect x="2" y="2" width="32" height="32" rx="8" fill="#0f172a"/>
+  <path d="M10 9h5v18h-5V9z" fill="#f8fafc"/>
+  <path d="M15 9l6 0l-6 6z" fill="#10b981"/>
+  <path fill-rule="evenodd" clip-rule="evenodd" d="M15 12h6.5a4.5 4.5 0 014.5 4.5v0a4.5 4.5 0 01-4.5 4.5H15V12zm4.5 3h-1.5v3h1.5a1.5 1.5 0 001.5-1.5v0a1.5 1.5 0 00-1.5-1.5z" fill="#f8fafc"/>
+  
+  <!-- Text Wordmark -->
+  <text x="44" y="24" font-family="'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif" font-size="20" font-weight="700" fill="#0f172a" letter-spacing="-0.02em">Patra</text>
+  <circle cx="106" cy="22" r="2.5" fill="#047857"/>
+</svg>

@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parents[2]
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="", extra="ignore")
 
-    app_name: str = "AI Docs Orchestration"
+    app_name: str = "Patra - Statutory Document Orchestration"
     app_version: str = "0.1.0"
     debug: bool = False
 
